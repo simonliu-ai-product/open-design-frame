@@ -34,7 +34,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @open-frame/core build
-      - run: npm pack --pack-destination /tmp -w packages/core
+      # pnpm, not npm: npm does not read pnpm's workspaces, and only pnpm
+      # rewrites `workspace:*` into a real version on the way out.
+      - run: cd packages/core && pnpm pack --pack-destination /tmp
       - name: Build a frame from the packed package
         run: |
           mkdir -p /tmp/try/frames/hello && cd /tmp/try
