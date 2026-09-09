@@ -63,5 +63,8 @@
   },
   "bugs": {
     "url": "https://github.com/simonliu-ai-product/open-frame/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -15,8 +15,15 @@ https://github.com/simonliu-ai-product/open-frame — 30 seconds of it working:
 ## Getting started
 
 ```bash
+pnpm add -D @open-frame/core
+open-frame dev          # canvas at http://localhost:5274
+```
+
+From a clone of this repository:
+
+```bash
 pnpm install
-pnpm dev          # canvas at http://localhost:5274
+pnpm dev
 ```
 
 `/` lists every frame file. Click one to open the canvas.
