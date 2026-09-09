@@ -18,7 +18,7 @@ export type ExportStageProps = {
 export function ExportStage({ frames, design, hostsRef }: ExportStageProps) {
   const vars = designToCssVars(design) as React.CSSProperties;
   return (
-    <div className="of-export-stage" aria-hidden="true">
+    <div className="odf-export-stage" aria-hidden="true">
       {frames.map((frame, index) => {
         const size = sizeOf(frame);
         const Component = frame;
@@ -28,7 +28,7 @@ export function ExportStage({ frames, design, hostsRef }: ExportStageProps) {
             ref={(el) => {
               hostsRef.current[index] = el;
             }}
-            className="of-frame of-frame-flat"
+            className="odf-frame odf-frame-flat"
             style={{ ...vars, position: 'relative', width: size.width, height: size.height }}
           >
             <Component />

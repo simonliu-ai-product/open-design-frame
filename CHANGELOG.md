@@ -21,6 +21,6 @@ First release.
   `DESIGN.md` beside the tokens.
 - **Folders and assets.** Folders are labels, not directories; assets have two
   scopes and report which frames use them.
-- **MCP.** `open-frame dev --mcp` mounts 25 tools on the dev server, over the
+- **MCP.** `open-design-frame dev --mcp` mounts 25 tools on the dev server, over the
   same operations the browser uses, including a revision check that refuses a
   stale write.

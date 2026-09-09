@@ -1,5 +1,5 @@
-import { frameIds } from 'virtual:open-frame/frames';
-import { themeIds } from 'virtual:open-frame/themes';
+import { frameIds } from 'virtual:open-design-frame/frames';
+import { themeIds } from 'virtual:open-design-frame/themes';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Outlet,
@@ -114,13 +114,13 @@ export function HomeShell() {
   };
 
   return (
-    <div className="of-home-shell">
-      <aside className="of-nav">
-        <div className="of-nav-top">
-          <span className="of-nav-brand">open-frame</span>
+    <div className="odf-home-shell">
+      <aside className="odf-nav">
+        <div className="odf-nav-top">
+          <span className="odf-nav-brand">open-design-frame</span>
           <button
             type="button"
-            className="of-nav-icon"
+            className="odf-nav-icon"
             aria-label="Search"
             title="Search (⌘K)"
             onClick={() => setFinding(true)}
@@ -132,7 +132,7 @@ export function HomeShell() {
           </button>
           <button
             type="button"
-            className="of-nav-icon"
+            className="odf-nav-icon"
             aria-label={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
             aria-pressed={theme === 'light'}
             title={theme === 'dark' ? 'Light chrome' : 'Dark chrome'}
@@ -161,10 +161,10 @@ export function HomeShell() {
             )}
           </button>
         </div>
-        <nav className="of-nav-list">
+        <nav className="odf-nav-list">
           <button
             type="button"
-            className="of-nav-item"
+            className="odf-nav-item"
             aria-current={onFrames && folderFilter === null}
             onClick={() => go('/')}
           >
@@ -172,7 +172,7 @@ export function HomeShell() {
           </button>
           <button
             type="button"
-            className="of-nav-item"
+            className="odf-nav-item"
             aria-current={location.pathname === '/themes'}
             onClick={() => go('/themes')}
           >
@@ -180,7 +180,7 @@ export function HomeShell() {
           </button>
           <button
             type="button"
-            className="of-nav-item"
+            className="odf-nav-item"
             aria-current={location.pathname === '/assets'}
             onClick={() => go('/assets')}
           >
@@ -188,11 +188,11 @@ export function HomeShell() {
           </button>
         </nav>
 
-        <div className="of-nav-label">Folders</div>
-        <nav className="of-nav-list">
+        <div className="odf-nav-label">Folders</div>
+        <nav className="odf-nav-list">
           <button
             type="button"
-            className="of-nav-item"
+            className="odf-nav-item"
             aria-current={onFrames && folderFilter === 'unfiled'}
             onClick={() => go('/?f=unfiled')}
           >
@@ -203,7 +203,7 @@ export function HomeShell() {
             renaming === folder.id ? (
               <input
                 key={folder.id}
-                className="of-nav-input"
+                className="odf-nav-input"
                 // biome-ignore lint/a11y/noAutofocus: the field replaces the row the user just chose
                 autoFocus
                 defaultValue={folder.name}
@@ -218,10 +218,10 @@ export function HomeShell() {
                 }}
               />
             ) : (
-              <span className="of-nav-row" key={folder.id}>
+              <span className="odf-nav-row" key={folder.id}>
                 <button
                   type="button"
-                  className="of-nav-item"
+                  className="odf-nav-item"
                   aria-current={onFrames && folderFilter === folder.id}
                   onClick={() => go(`/?f=${encodeURIComponent(folder.id)}`)}
                 >
@@ -257,7 +257,7 @@ export function HomeShell() {
 
           {creating ? (
             <input
-              className="of-nav-input"
+              className="odf-nav-input"
               // biome-ignore lint/a11y/noAutofocus: the field is what New folder just opened
               autoFocus
               value={draft}
@@ -273,7 +273,7 @@ export function HomeShell() {
           ) : editable ? (
             <button
               type="button"
-              className="of-nav-item of-nav-new"
+              className="odf-nav-item odf-nav-new"
               onClick={() => {
                 setCreating(true);
                 setDraft('');
@@ -284,10 +284,10 @@ export function HomeShell() {
           ) : null}
         </nav>
 
-        {error ? <p className="of-error of-error-inline">{error}</p> : null}
-        <span className="of-nav-spacer" />
-        <div className="of-nav-foot">
-          <i className="of-dot" /> v0.1.0
+        {error ? <p className="odf-error odf-error-inline">{error}</p> : null}
+        <span className="odf-nav-spacer" />
+        <div className="odf-nav-foot">
+          <i className="odf-dot" /> v0.1.0
         </div>
       </aside>
 

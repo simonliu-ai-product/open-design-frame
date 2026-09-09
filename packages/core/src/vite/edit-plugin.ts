@@ -13,7 +13,7 @@ type Body = { frameId?: string; line?: number; column?: number; ops?: EditOp[] }
  */
 export function editPlugin(ctx: OpsContext): Plugin {
   return {
-    name: 'open-frame:edit',
+    name: 'open-design-frame:edit',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/__edit', (req, res) => {

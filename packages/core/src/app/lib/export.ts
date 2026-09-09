@@ -79,7 +79,7 @@ const escapeHtml = (value: string): string =>
 /**
  * A frame as a page that opens on its own.
  *
- * Everything a frame draws with is either an inline style or an `--ofr-*`
+ * Everything a frame draws with is either an inline style or an `--odf-*`
  * token, so the markup plus the tokens is the whole picture — no stylesheet to
  * ship beside it and nothing to go missing when the folder is passed on.
  * The editor's own attributes are stripped: a source line number is our
@@ -114,15 +114,15 @@ ${vars}
         display: flex;
         justify-content: center;
         background: #e9eaee;
-        font-family: var(--ofr-font-body);
-        color: var(--ofr-text);
+        font-family: var(--odf-font-body);
+        color: var(--odf-text);
       }
       .frame {
         position: relative;
         width: ${item.size.width}px;
         height: ${item.size.height}px;
         overflow: hidden;
-        background: var(--ofr-bg);
+        background: var(--odf-bg);
       }
     </style>
   </head>

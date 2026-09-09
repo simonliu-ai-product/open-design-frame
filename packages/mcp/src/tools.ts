@@ -28,11 +28,11 @@ import {
   writeFrame,
   writeTheme,
   writeThemeDoc,
-} from '@open-frame/core/ops';
+} from '@open-design-frame/core/ops';
 import { z } from 'zod';
 
 /**
- * Every tool is a thin wrapper over `@open-frame/core/ops` — the same functions
+ * Every tool is a thin wrapper over `@open-design-frame/core/ops` — the same functions
  * the dev server calls for the browser. An agent and a person editing the same
  * workspace therefore go through one implementation, including its refusals.
  */
@@ -160,12 +160,12 @@ export function registerTools(server: McpServer, ctx: OpsContext): void {
       title: 'Edit one element',
       description:
         'Change the style or text of the element written at line:column — the location the ' +
-        'page reports in data-of-loc. Refuses an element that takes its style from a shared ' +
+        'page reports in data-odf-loc. Refuses an element that takes its style from a shared ' +
         'value, since changing that would restyle everything else using it.',
       inputSchema: z.object({
         frameId: FRAME_ID,
-        line: z.number().int().positive().describe('1-based line from data-of-loc'),
-        column: z.number().int().nonnegative().describe('0-based column from data-of-loc'),
+        line: z.number().int().positive().describe('1-based line from data-odf-loc'),
+        column: z.number().int().nonnegative().describe('0-based column from data-odf-loc'),
         ops: z
           .array(
             z.union([

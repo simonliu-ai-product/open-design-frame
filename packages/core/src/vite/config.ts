@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import type { InlineConfig } from 'vite';
-import type { OpenFrameConfig } from '../config.ts';
+import type { OpenDesignFrameConfig } from '../config.ts';
 import { makeContext } from '../ops/index.ts';
 import { assetsPlugin } from './assets-plugin.ts';
 import { commentsPlugin } from './comments-plugin.ts';
@@ -13,7 +13,7 @@ import { foldersPlugin } from './folders-plugin.ts';
 import { framesPlugin } from './frames-plugin.ts';
 import { locTagsPlugin } from './loc-tags-plugin.ts';
 import { mcpPlugin } from './mcp-plugin.ts';
-import { openFramePlugin } from './open-frame-plugin.ts';
+import { openDesignFramePlugin } from './open-design-frame-plugin.ts';
 import { themesPlugin } from './themes-plugin.ts';
 
 const require = createRequire(import.meta.url);
@@ -32,7 +32,7 @@ function findPackageRoot(fromFile: string): string {
     if (existsSync(path.join(dir, 'package.json'))) return dir;
     dir = path.dirname(dir);
   }
-  throw new Error(`open-frame: no package.json above ${fromFile}`);
+  throw new Error(`open-design-frame: no package.json above ${fromFile}`);
 }
 
 const PKG_ROOT = findPackageRoot(fileURLToPath(import.meta.url));
@@ -49,11 +49,15 @@ function readCoreVersion(): string {
 
 const CORE_VERSION = readCoreVersion();
 
-async function readUserConfig(userCwd: string): Promise<OpenFrameConfig> {
-  for (const name of ['open-frame.config.ts', 'open-frame.config.js', 'open-frame.config.mjs']) {
+async function readUserConfig(userCwd: string): Promise<OpenDesignFrameConfig> {
+  for (const name of [
+    'open-design-frame.config.ts',
+    'open-design-frame.config.js',
+    'open-design-frame.config.mjs',
+  ]) {
     const file = path.join(userCwd, name);
     try {
-      const mod = (await import(pathToFileURL(file).href)) as { default?: OpenFrameConfig };
+      const mod = (await import(pathToFileURL(file).href)) as { default?: OpenDesignFrameConfig };
       return mod.default ?? {};
     } catch {
       // Missing is the common case; a real syntax error surfaces when Vite loads
@@ -65,7 +69,7 @@ async function readUserConfig(userCwd: string): Promise<OpenFrameConfig> {
 
 export type CreateViteConfigOptions = {
   userCwd: string;
-  /** Mount the MCP endpoint at /mcp (requires `@open-frame/mcp`). */
+  /** Mount the MCP endpoint at /mcp (requires `@open-design-frame/mcp`). */
   mcp?: boolean;
 };
 
@@ -90,7 +94,7 @@ export async function createViteConfig(opts: CreateViteConfigOptions): Promise<I
     plugins: [
       locTagsPlugin({ framesRoot: framesAbs }),
       react(),
-      openFramePlugin({ userCwd, config }),
+      openDesignFramePlugin({ userCwd, config }),
       editPlugin(ctx),
       assetsPlugin(ctx),
       commentsPlugin(ctx),
@@ -111,7 +115,7 @@ export async function createViteConfig(opts: CreateViteConfigOptions): Promise<I
     ],
     resolve: {
       alias: {
-        // A frame imports `@open-frame/core`; from the viewer's root that name
+        // A frame imports `@open-design-frame/core`; from the viewer's root that name
         // resolves against core's own node_modules, which is where it already is.
         react: path.dirname(require.resolve('react/package.json')),
         'react-dom': path.dirname(require.resolve('react-dom/package.json')),

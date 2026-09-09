@@ -1,4 +1,4 @@
-import { frameIds, loadFrame } from 'virtual:open-frame/frames';
+import { frameIds, loadFrame } from 'virtual:open-design-frame/frames';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FrameCanvas } from '../components/frame-canvas.tsx';
@@ -24,7 +24,7 @@ const titleOf = (file: Loaded): string =>
 function Cover({ frame, design }: { frame: Frame; design: ReturnType<typeof mergeDesign> }) {
   const Component = frame;
   return (
-    <span className="of-cover">
+    <span className="odf-cover">
       <FrameCanvas size={sizeOf(frame)} design={design} flat>
         <Component />
       </FrameCanvas>
@@ -129,21 +129,21 @@ export function Home() {
   ];
 
   return (
-    <main className="of-home">
-      <header className="of-home-head">
+    <main className="odf-home">
+      <header className="odf-home-head">
         <h1>
           <span aria-hidden="true">▦</span> {viewName}{' '}
           <em>{String(shown.length).padStart(2, '0')}</em>
         </h1>
-        <div className="of-home-tools">
-          <label className="of-sort">
+        <div className="odf-home-tools">
+          <label className="odf-sort">
             <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
               <option value="newest">Newest</option>
               <option value="name">Name</option>
             </select>
           </label>
-          <label className="of-search">
-            <span className="of-search-icon" aria-hidden="true">
+          <label className="odf-search">
+            <span className="odf-search-icon" aria-hidden="true">
               ⌕
             </span>
             <input
@@ -156,25 +156,25 @@ export function Home() {
         </div>
       </header>
 
-      {failure ? <p className="of-error of-error-inline">{failure}</p> : null}
+      {failure ? <p className="odf-error odf-error-inline">{failure}</p> : null}
 
       {frameIds.length === 0 ? (
-        <p className="of-empty">
+        <p className="odf-empty">
           No frames yet. Create <code>frames/&lt;id&gt;/index.tsx</code> and export an array of
           frames from it.
         </p>
       ) : shown.length === 0 ? (
-        <p className="of-empty">
+        <p className="odf-empty">
           Nothing in {viewName}. Move a frame here from the ⋯ menu on its card.
         </p>
       ) : (
-        <div className="of-grid">
+        <div className="odf-grid">
           {shown.map((file) => {
             if ('error' in file) {
               return (
-                <div className="of-card of-card-broken" key={file.id}>
-                  <span className="of-cover of-cover-broken">{file.error}</span>
-                  <span className="of-card-name">{file.id}</span>
+                <div className="odf-card odf-card-broken" key={file.id}>
+                  <span className="odf-cover odf-cover-broken">{file.error}</span>
+                  <span className="odf-card-name">{file.id}</span>
                 </div>
               );
             }
@@ -182,20 +182,20 @@ export function Home() {
             if (!first) return null;
             const count = file.mod.default.length;
             return (
-              <div className="of-card" key={file.id}>
-                <Link className="of-card-open" to={`/f/${file.id}`}>
+              <div className="odf-card" key={file.id}>
+                <Link className="odf-card-open" to={`/f/${file.id}`}>
                   <Cover frame={first} design={mergeDesign(file.mod.design)} />
                 </Link>
                 {editable ? (
                   <Menu
-                    className="of-card-menu"
+                    className="odf-card-menu"
                     label={`Actions for ${titleOf(file)}`}
                     items={cardMenu(file.id)}
                   />
                 ) : null}
                 {renamingFrame === file.id ? (
                   <input
-                    className="of-card-input"
+                    className="odf-card-input"
                     // biome-ignore lint/a11y/noAutofocus: the field replaces the name the user just chose to change
                     autoFocus
                     defaultValue={titleOf(file)}
@@ -210,9 +210,9 @@ export function Home() {
                     }}
                   />
                 ) : (
-                  <Link className="of-card-open" to={`/f/${file.id}`}>
-                    <span className="of-card-name">{titleOf(file)}</span>
-                    <span className="of-card-meta">
+                  <Link className="odf-card-open" to={`/f/${file.id}`}>
+                    <span className="odf-card-name">{titleOf(file)}</span>
+                    <span className="odf-card-meta">
                       {nameOf(first, 0)} · {count} {count === 1 ? 'frame' : 'frames'}
                     </span>
                   </Link>

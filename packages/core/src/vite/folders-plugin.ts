@@ -17,7 +17,7 @@ import { readJson, send } from './http.ts';
  */
 export function foldersPlugin(ctx: OpsContext): Plugin {
   return {
-    name: 'open-frame:folders',
+    name: 'open-design-frame:folders',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/__folders', (req, res, next) => {

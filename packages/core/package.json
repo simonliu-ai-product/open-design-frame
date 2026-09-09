@@ -1,10 +1,10 @@
 {
-  "name": "@open-frame/core",
+  "name": "@open-design-frame/core",
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "bin": {
-    "open-frame": "./bin.js"
+    "open-design-frame": "./bin.js"
   },
   "files": [
     "dist",
@@ -55,14 +55,14 @@
     "tsdown": "^0.9.9",
     "typescript": "^5.9.3"
   },
-  "homepage": "https://github.com/simonliu-ai-product/open-frame",
+  "homepage": "https://github.com/simonliu-ai-product/open-design-frame",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simonliu-ai-product/open-frame.git",
+    "url": "git+https://github.com/simonliu-ai-product/open-design-frame.git",
     "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/simonliu-ai-product/open-frame/issues"
+    "url": "https://github.com/simonliu-ai-product/open-design-frame/issues"
   },
   "publishConfig": {
     "access": "public"

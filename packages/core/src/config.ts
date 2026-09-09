@@ -1,4 +1,4 @@
-export type OpenFrameConfig = {
+export type OpenDesignFrameConfig = {
   base?: string;
   /** Where frames live, relative to the project root. */
   framesDir?: string;

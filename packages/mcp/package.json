@@ -1,7 +1,7 @@
 {
-  "name": "@open-frame/mcp",
+  "name": "@open-design-frame/mcp",
   "version": "0.1.0",
-  "description": "MCP server for open-frame \u2014 lets any agent list, read, edit, comment on and file design frames over Streamable HTTP.",
+  "description": "MCP server for open-design-frame \u2014 lets any agent list, read, edit, comment on and file design frames over Streamable HTTP.",
   "type": "module",
   "exports": {
     ".": {
@@ -26,7 +26,7 @@
     "model-context-protocol",
     "design",
     "agent",
-    "open-frame"
+    "open-design-frame"
   ],
   "license": "MIT",
   "dependencies": {
@@ -35,22 +35,22 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@open-frame/core": "^0.1.0"
+    "@open-design-frame/core": "^0.1.0"
   },
   "devDependencies": {
-    "@open-frame/core": "workspace:*",
+    "@open-design-frame/core": "workspace:*",
     "@types/node": "^22.19.17",
     "tsdown": "^0.9.9",
     "typescript": "^5.9.3"
   },
-  "homepage": "https://github.com/simonliu-ai-product/open-frame",
+  "homepage": "https://github.com/simonliu-ai-product/open-design-frame",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simonliu-ai-product/open-frame.git",
+    "url": "git+https://github.com/simonliu-ai-product/open-design-frame.git",
     "directory": "packages/mcp"
   },
   "bugs": {
-    "url": "https://github.com/simonliu-ai-product/open-frame/issues"
+    "url": "https://github.com/simonliu-ai-product/open-design-frame/issues"
   },
   "publishConfig": {
     "access": "public"

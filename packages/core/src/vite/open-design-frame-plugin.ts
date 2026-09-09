@@ -2,16 +2,16 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import fg from 'fast-glob';
 import type { Plugin } from 'vite';
-import type { OpenFrameConfig } from '../config.ts';
+import type { OpenDesignFrameConfig } from '../config.ts';
 import { listThemes, MANIFEST_NAME, makeContext, readFolders, themeDocPath } from '../ops/index.ts';
 
-const FRAMES_VMOD = 'virtual:open-frame/frames';
-const CONFIG_VMOD = 'virtual:open-frame/config';
-const FOLDERS_VMOD = 'virtual:open-frame/folders';
-const THEMES_VMOD = 'virtual:open-frame/themes';
-const THEME_DOCS_VMOD = 'virtual:open-frame/theme-docs';
-const FRAME_PREFIX = 'virtual:open-frame/frame/';
-const THEME_PREFIX = 'virtual:open-frame/theme/';
+const FRAMES_VMOD = 'virtual:open-design-frame/frames';
+const CONFIG_VMOD = 'virtual:open-design-frame/config';
+const FOLDERS_VMOD = 'virtual:open-design-frame/folders';
+const THEMES_VMOD = 'virtual:open-design-frame/themes';
+const THEME_DOCS_VMOD = 'virtual:open-design-frame/theme-docs';
+const FRAME_PREFIX = 'virtual:open-design-frame/frame/';
+const THEME_PREFIX = 'virtual:open-design-frame/theme/';
 
 /**
  * A frame id reaches the URL bar, the filesystem, and the export filename.
@@ -21,9 +21,9 @@ const THEME_PREFIX = 'virtual:open-frame/theme/';
  */
 const FRAME_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-export type OpenFramePluginOptions = {
+export type OpenDesignFramePluginOptions = {
   userCwd: string;
-  config: OpenFrameConfig;
+  config: OpenDesignFrameConfig;
 };
 
 type Entry = { id: string; file: string };
@@ -42,7 +42,7 @@ async function discover(root: string): Promise<{ entries: Entry[]; ignored: stri
   };
 }
 
-export function openFramePlugin(opts: OpenFramePluginOptions): Plugin {
+export function openDesignFramePlugin(opts: OpenDesignFramePluginOptions): Plugin {
   const { userCwd, config } = opts;
   const framesRoot = path.resolve(userCwd, config.framesDir ?? 'frames');
   const themesRoot = path.resolve(userCwd, config.themesDir ?? 'themes');
@@ -50,7 +50,7 @@ export function openFramePlugin(opts: OpenFramePluginOptions): Plugin {
   let themeFiles = new Map<string, string>();
 
   return {
-    name: 'open-frame',
+    name: 'open-design-frame',
     resolveId(id) {
       if (id === FRAMES_VMOD || id === CONFIG_VMOD || id === FOLDERS_VMOD) return `\0${id}`;
       if (id === THEMES_VMOD || id === THEME_DOCS_VMOD) return `\0${id}`;

@@ -4,14 +4,14 @@ import { dev } from './dev.ts';
 
 const program = new Command();
 
-program.name('open-frame').description('Design frames, written as components.');
+program.name('open-design-frame').description('Design frames, written as components.');
 
 program
   .command('dev')
   .description('Open the canvas with hot reload')
   .option('-p, --port <port>', 'port to listen on', (v) => Number.parseInt(v, 10))
   .option('--host [host]', 'expose on the network')
-  .option('--mcp', 'serve an MCP endpoint at /mcp (requires @open-frame/mcp)')
+  .option('--mcp', 'serve an MCP endpoint at /mcp (requires @open-design-frame/mcp)')
   .action(async (opts: { port?: number; host?: string | boolean; mcp?: boolean }) => {
     await dev(opts);
   });

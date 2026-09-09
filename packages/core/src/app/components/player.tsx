@@ -141,64 +141,64 @@ export function Player({ frames, design, index, title, onIndex, onClose }: Playe
   const address = frame.url ?? nameOf(frame, index);
 
   return (
-    <div className="of-player" ref={rootRef}>
-      <div className="of-player-stage">
+    <div className="odf-player" ref={rootRef}>
+      <div className="odf-player-stage">
         {/*
          * The fit is measured on a box with no padding of its own. Measuring the
          * padded stage and placing inside its content box is a lie of up to the
          * padding on each side, and the device lands under the toolbar.
          */}
-        <div className="of-player-fit" ref={stageRef}>
+        <div className="odf-player-fit" ref={stageRef}>
           {/* The box holds the scaled size; scaling alone would leave the layout
             at full size and the device pinned to a corner of it. */}
           <div
-            className="of-device-box"
+            className="odf-device-box"
             style={{ width: deviceWidth * scale, height: deviceHeight * scale }}
           >
             <div
-              className={hinting || pinned ? 'of-device of-device-hinting' : 'of-device'}
+              className={hinting || pinned ? 'odf-device odf-device-hinting' : 'odf-device'}
               style={{ width: deviceWidth, height: deviceHeight, transform: `scale(${scale})` }}
               onClickCapture={onClick}
             >
               {handheld ? (
-                <div className="of-phone">
-                  <span className="of-phone-notch" />
+                <div className="odf-phone">
+                  <span className="odf-phone-notch" />
                   <div
-                    className="of-phone-screen"
+                    className="odf-phone-screen"
                     style={{ width: size.width, height: size.height }}
                   >
                     <FramePlate design={design} size={size} Current={Current} />
                   </div>
-                  <span className="of-phone-home" />
+                  <span className="odf-phone-home" />
                 </div>
               ) : (
-                <div className="of-browser">
-                  <div className="of-browser-chrome" style={{ height: CHROME_HEIGHT }}>
-                    <div className="of-browser-row">
-                      <span className="of-lights">
+                <div className="odf-browser">
+                  <div className="odf-browser-chrome" style={{ height: CHROME_HEIGHT }}>
+                    <div className="odf-browser-row">
+                      <span className="odf-lights">
                         <i />
                         <i />
                         <i />
                       </span>
-                      <span className="of-browser-tab">
+                      <span className="odf-browser-tab">
                         <i />
                         {title}
                       </span>
                     </div>
-                    <div className="of-browser-row">
-                      <span className="of-browser-nav">
+                    <div className="odf-browser-row">
+                      <span className="odf-browser-nav">
                         <i>‹</i>
                         <i>›</i>
                         <i>⟳</i>
                       </span>
-                      <span className="of-browser-address">
+                      <span className="odf-browser-address">
                         <i aria-hidden="true">🔒</i>
                         {address}
                       </span>
                     </div>
                   </div>
                   <div
-                    className="of-browser-page"
+                    className="odf-browser-page"
                     style={{ width: size.width, height: size.height }}
                   >
                     <FramePlate design={design} size={size} Current={Current} />
@@ -210,42 +210,42 @@ export function Player({ frames, design, index, title, onIndex, onClose }: Playe
         </div>
       </div>
 
-      <div className="of-player-bar">
+      <div className="odf-player-bar">
         <button
           type="button"
-          className="of-chip"
+          className="odf-chip"
           aria-label="Previous frame"
           onClick={() => onIndex(Math.max(0, index - 1))}
         >
           ‹
         </button>
-        <span className="of-player-count">
+        <span className="odf-player-count">
           {index + 1} / {frames.length} · {nameOf(frame, index)}
         </span>
         <button
           type="button"
-          className="of-chip"
+          className="odf-chip"
           aria-label="Next frame"
           onClick={() => onIndex(Math.min(frames.length - 1, index + 1))}
         >
           ›
         </button>
-        <span className="of-player-sep" />
+        <span className="odf-player-sep" />
         <button
           type="button"
-          className="of-chip"
+          className="odf-chip"
           aria-pressed={pinned}
           onClick={() => setPinned((v) => !v)}
         >
           Hotspots <kbd>H</kbd>
         </button>
-        <button type="button" className="of-chip" aria-pressed={full} onClick={toggleFull}>
+        <button type="button" className="odf-chip" aria-pressed={full} onClick={toggleFull}>
           {full ? 'Windowed' : 'Fullscreen'} <kbd>F</kbd>
         </button>
-        <button type="button" className="of-chip" onClick={onClose}>
+        <button type="button" className="odf-chip" onClick={onClose}>
           Exit <kbd>Esc</kbd>
         </button>
-        {fullError ? <span className="of-player-error">{fullError}</span> : null}
+        {fullError ? <span className="odf-player-error">{fullError}</span> : null}
       </div>
     </div>
   );
@@ -263,7 +263,7 @@ function FramePlate({
 }) {
   return (
     <div
-      className="of-frame of-frame-flat"
+      className="odf-frame odf-frame-flat"
       style={{
         ...(designToCssVars(design) as React.CSSProperties),
         position: 'relative',

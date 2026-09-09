@@ -11,12 +11,12 @@ quiet, orderly, nothing decorative.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--ofr-bg` | `#E9EAEE` | The canvas behind the cards. |
-| `--ofr-surface` | `#FFFFFF` | Every card, panel and table. |
-| `--ofr-line` | `#E6E6EC` | 1px borders and row rules. |
-| `--ofr-text` | `#16161A` | Figures and headings. |
-| `--ofr-muted` | `#6B6B76` | Labels, units, timestamps. |
-| `--ofr-accent` | `#7C5CFF` | Charts, the selected nav row, one button. |
+| `--odf-bg` | `#E9EAEE` | The canvas behind the cards. |
+| `--odf-surface` | `#FFFFFF` | Every card, panel and table. |
+| `--odf-line` | `#E6E6EC` | 1px borders and row rules. |
+| `--odf-text` | `#16161A` | Figures and headings. |
+| `--odf-muted` | `#6B6B76` | Labels, units, timestamps. |
+| `--odf-accent` | `#7C5CFF` | Charts, the selected nav row, one button. |
 
 Tints: success `#1F8A53` and danger `#B4232A`, each on a 10% wash of itself.
 A positive figure is not green by default — only a delta is.
@@ -44,10 +44,10 @@ that does not line up is a bug.
 
 ## 5. Component styles
 
-- Corner radius 14px (`--ofr-radius`); chips and pills 999px; inputs 9px.
-- Cards: `--ofr-surface` with a 1px `--ofr-line` border, never a shadow.
+- Corner radius 14px (`--odf-radius`); chips and pills 999px; inputs 9px.
+- Cards: `--odf-surface` with a 1px `--odf-line` border, never a shadow.
 - Stat cards may take a 10% tint of a semantic colour as their whole background.
-- Nav row, selected: 10% accent wash, `--ofr-text`, 9px radius.
+- Nav row, selected: 10% accent wash, `--odf-text`, 9px radius.
 
 ## 6. Elevation & motion
 
@@ -70,7 +70,7 @@ bar of four items and every grid collapses to one column.
 
 ## 9. Agent prompt guide
 
-> Build this in the Flow theme: `--ofr-bg` canvas, `--ofr-surface` cards with a
-> 1px `--ofr-line` border, 14px radius, 18px padding, 14px gaps, no shadows.
-> Body 13px, column heads 11px uppercase `--ofr-muted` at 0.08em. All figures
+> Build this in the Flow theme: `--odf-bg` canvas, `--odf-surface` cards with a
+> 1px `--odf-line` border, 14px radius, 18px padding, 14px gaps, no shadows.
+> Body 13px, column heads 11px uppercase `--odf-muted` at 0.08em. All figures
 > tabular. The accent appears in charts and on one action only.

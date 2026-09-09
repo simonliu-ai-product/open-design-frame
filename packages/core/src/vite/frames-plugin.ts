@@ -18,7 +18,7 @@ import { readJson, send } from './http.ts';
  */
 export function framesPlugin(ctx: OpsContext): Plugin {
   return {
-    name: 'open-frame:frames',
+    name: 'open-design-frame:frames',
     apply: 'serve',
     configureServer(server: ViteDevServer) {
       server.middlewares.use('/__frames', (req, res, next) => {

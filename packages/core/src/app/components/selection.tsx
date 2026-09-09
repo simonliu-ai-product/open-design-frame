@@ -37,7 +37,7 @@ export function Selection({ element, host, variant = 'selected' }: SelectionProp
   if (!box) return null;
   return (
     <div
-      className={variant === 'hover' ? 'of-selection of-selection-hover' : 'of-selection'}
+      className={variant === 'hover' ? 'odf-selection odf-selection-hover' : 'odf-selection'}
       style={{ left: box.left, top: box.top, width: box.width, height: box.height }}
     />
   );

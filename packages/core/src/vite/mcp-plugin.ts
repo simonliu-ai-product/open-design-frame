@@ -42,7 +42,7 @@ export type McpPluginOptions = {
 };
 
 /**
- * Mounts `@open-frame/mcp` on the dev server so an agent and the browser act on
+ * Mounts `@open-design-frame/mcp` on the dev server so an agent and the browser act on
  * one workspace — a tool call lands on disk and the canvas hot-reloads.
  *
  * The package is imported dynamically and is not a dependency of core: the MCP
@@ -52,15 +52,15 @@ export type McpPluginOptions = {
 export function mcpPlugin(opts: McpPluginOptions): Plugin {
   const endpoint = opts.endpoint ?? '/mcp';
   return {
-    name: 'open-frame:mcp',
+    name: 'open-design-frame:mcp',
     apply: 'serve',
     configureServer(server) {
-      let mod: { createOpenFrameMcpMiddleware: (o: unknown) => Middleware } | null = null;
+      let mod: { createOpenDesignFrameMcpMiddleware: (o: unknown) => Middleware } | null = null;
       let middleware: Middleware | undefined;
 
       const load = async () => {
         if (mod) return mod;
-        const specifier = '@open-frame/mcp';
+        const specifier = '@open-design-frame/mcp';
         const entry = resolveEsmEntry(opts.userCwd, specifier);
         mod = (await import(entry ? pathToFileURL(entry).href : specifier)) as typeof mod;
         return mod;
@@ -71,7 +71,7 @@ export function mcpPlugin(opts: McpPluginOptions): Plugin {
           try {
             const loaded = await load();
             if (!loaded) return next();
-            middleware ??= loaded.createOpenFrameMcpMiddleware({
+            middleware ??= loaded.createOpenDesignFrameMcpMiddleware({
               userCwd: opts.userCwd,
               framesDir: opts.framesDir,
               themesDir: opts.themesDir,
@@ -84,7 +84,7 @@ export function mcpPlugin(opts: McpPluginOptions): Plugin {
             res.setHeader('content-type', 'application/json');
             res.end(
               JSON.stringify({
-                error: 'MCP endpoint unavailable — add @open-frame/mcp to this workspace',
+                error: 'MCP endpoint unavailable — add @open-design-frame/mcp to this workspace',
               }),
             );
           }

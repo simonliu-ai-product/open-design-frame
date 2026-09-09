@@ -44,15 +44,15 @@ export const defaultDesign: DesignSystem = {
 export function designToCssVars(design: DesignSystem): Record<string, string> {
   const vars: Record<string, string> = {};
   for (const [key, value] of Object.entries(design.palette)) {
-    if (value !== undefined) vars[`--ofr-${key}`] = value;
+    if (value !== undefined) vars[`--odf-${key}`] = value;
   }
   for (const [key, value] of Object.entries(design.fonts)) {
-    if (value !== undefined) vars[`--ofr-font-${key}`] = value;
+    if (value !== undefined) vars[`--odf-font-${key}`] = value;
   }
   for (const [key, value] of Object.entries(design.typeScale ?? {})) {
-    if (value !== undefined) vars[`--ofr-size-${key}`] = `${value}px`;
+    if (value !== undefined) vars[`--odf-size-${key}`] = `${value}px`;
   }
-  if (design.radius !== undefined) vars['--ofr-radius'] = `${design.radius}px`;
+  if (design.radius !== undefined) vars['--odf-radius'] = `${design.radius}px`;
   return vars;
 }
 

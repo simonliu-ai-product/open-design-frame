@@ -15,11 +15,11 @@ export function ThemeDetail() {
 
   const doc = themeDoc(themeId);
 
-  if (loading) return <main className="of-home" />;
+  if (loading) return <main className="odf-home" />;
   if (!theme) {
     return (
-      <main className="of-home">
-        <p className="of-empty">
+      <main className="odf-home">
+        <p className="odf-empty">
           No theme named <code>{themeId}</code>. It would be <code>themes/{themeId}.ts</code> or{' '}
           <code>themes/{themeId}/index.ts</code>.
         </p>
@@ -28,8 +28,8 @@ export function ThemeDetail() {
   }
   if ('error' in theme) {
     return (
-      <main className="of-home">
-        <p className="of-error">{theme.error}</p>
+      <main className="odf-home">
+        <p className="odf-error">{theme.error}</p>
       </main>
     );
   }
@@ -43,10 +43,10 @@ export function ThemeDetail() {
   };
 
   return (
-    <main className="of-home">
-      <header className="of-home-head">
+    <main className="odf-home">
+      <header className="odf-home-head">
         <h1>
-          <Link className="of-back" to="/themes" aria-label="All themes">
+          <Link className="odf-back" to="/themes" aria-label="All themes">
             ‹
           </Link>
           {themeName(theme)}
@@ -55,13 +55,13 @@ export function ThemeDetail() {
 
       <ThemeSheet design={design} />
 
-      <div className="of-theme-detail">
-        <div className="of-theme-side">
-          <div className="of-section-label">Tokens</div>
-          <div className="of-theme-tokens">
+      <div className="odf-theme-detail">
+        <div className="odf-theme-side">
+          <div className="odf-section-label">Tokens</div>
+          <div className="odf-theme-tokens">
             {Object.entries(design.palette).map(([name, value]) =>
               value === undefined ? null : (
-                <span className="of-theme-token" key={name}>
+                <span className="odf-theme-token" key={name}>
                   <i style={{ background: value }} />
                   <b>{name}</b>
                   <code>{value}</code>
@@ -69,24 +69,24 @@ export function ThemeDetail() {
               ),
             )}
             {Object.entries(design.typeScale ?? {}).map(([name, value]) => (
-              <span className="of-theme-token" key={name}>
+              <span className="odf-theme-token" key={name}>
                 <b>{name}</b>
                 <code>{value}px</code>
               </span>
             ))}
-            <span className="of-theme-token">
+            <span className="odf-theme-token">
               <b>radius</b>
               <code>{design.radius}px</code>
             </span>
           </div>
 
-          <div className="of-section-label">Fonts</div>
-          <div className="of-theme-tokens">
+          <div className="odf-section-label">Fonts</div>
+          <div className="odf-theme-tokens">
             {Object.entries(design.fonts).map(([name, value]) =>
               value === undefined ? null : (
-                <span className="of-theme-token" key={name}>
+                <span className="odf-theme-token" key={name}>
                   <b>{name}</b>
-                  <code className="of-theme-font-value">
+                  <code className="odf-theme-font-value">
                     {value.split(',')[0]?.replace(/["']/g, '')}
                   </code>
                 </span>
@@ -95,14 +95,14 @@ export function ThemeDetail() {
           </div>
         </div>
 
-        <div className="of-theme-doc">
+        <div className="odf-theme-doc">
           {doc === null ? (
-            <div className="of-assets-empty">
-              <span className="of-assets-empty-mark" aria-hidden="true">
+            <div className="odf-assets-empty">
+              <span className="odf-assets-empty-mark" aria-hidden="true">
                 ▤
               </span>
-              <p className="of-assets-empty-title">No DESIGN.md yet</p>
-              <p className="of-note">
+              <p className="odf-assets-empty-title">No DESIGN.md yet</p>
+              <p className="odf-note">
                 A design document is the half of a design system that tokens cannot hold — the
                 atmosphere, the rules, what not to do. It lives at{' '}
                 <code>themes/{theme.id}/DESIGN.md</code>, and both people and agents read it.
@@ -110,22 +110,22 @@ export function ThemeDetail() {
               {import.meta.env.DEV ? (
                 <button
                   type="button"
-                  className="of-primary of-theme-generate"
+                  className="odf-primary odf-theme-generate"
                   disabled={busy}
                   onClick={() => void generate()}
                 >
                   {busy ? 'Writing…' : 'Start one from these tokens'}
                 </button>
               ) : null}
-              {error ? <p className="of-error of-error-inline">{error}</p> : null}
+              {error ? <p className="odf-error odf-error-inline">{error}</p> : null}
             </div>
           ) : (
             <>
-              <div className="of-doc-head">
-                <code className="of-doc-path">DESIGN.md</code>
+              <div className="odf-doc-head">
+                <code className="odf-doc-path">DESIGN.md</code>
                 <button
                   type="button"
-                  className="of-chip"
+                  className="odf-chip"
                   onClick={() => {
                     void navigator.clipboard.writeText(doc);
                     setCopied(true);

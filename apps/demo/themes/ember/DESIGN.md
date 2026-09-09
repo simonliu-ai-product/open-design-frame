@@ -11,15 +11,15 @@ read as evening rather than night: warm, unhurried, a little editorial.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--ofr-bg` | `#0F0D12` | The page. |
-| `--ofr-surface` | `#191620` | Cards and inset panels. |
-| `--ofr-line` | `#2A2531` | Hairlines, 1px, and the outline button. |
-| `--ofr-text` | `#F6F4F8` | Headings and body. |
-| `--ofr-muted` | `#98929E` | Supporting copy, captions, inactive steps. |
-| `--ofr-accent` | `#FF7A4D` | The one action on the screen. |
+| `--odf-bg` | `#0F0D12` | The page. |
+| `--odf-surface` | `#191620` | Cards and inset panels. |
+| `--odf-line` | `#2A2531` | Hairlines, 1px, and the outline button. |
+| `--odf-text` | `#F6F4F8` | Headings and body. |
+| `--odf-muted` | `#98929E` | Supporting copy, captions, inactive steps. |
+| `--odf-accent` | `#FF7A4D` | The one action on the screen. |
 
-The accent is warm enough to carry `--ofr-bg` as its text colour; never put
-`--ofr-text` on it.
+The accent is warm enough to carry `--odf-bg` as its text colour; never put
+`--odf-text` on it.
 
 ## 3. Typography
 
@@ -43,10 +43,10 @@ The serif is for the hero only. A serif at body size on this ground goes muddy.
 
 ## 5. Component styles
 
-- Corner radius 16px (`--ofr-radius`); the primary button is a 999px pill.
-- Primary: `--ofr-accent` fill, `--ofr-bg` text, 12px/22px padding.
-- Secondary: 1px `--ofr-line` border on nothing, `--ofr-text`.
-- Progress dots: 7px, the current one stretched to 22px in `--ofr-accent`.
+- Corner radius 16px (`--odf-radius`); the primary button is a 999px pill.
+- Primary: `--odf-accent` fill, `--odf-bg` text, 12px/22px padding.
+- Secondary: 1px `--odf-line` border on nothing, `--odf-text`.
+- Progress dots: 7px, the current one stretched to 22px in `--odf-accent`.
 
 ## 6. Elevation & motion
 
@@ -63,12 +63,12 @@ column and the illustration moves below the copy.
 - Do leave the lower third of the screen empty; the whitespace is the mood.
 - Do keep to one action per screen, one accent per screen.
 - Don't use the serif below 22px.
-- Don't put `--ofr-text` on the accent.
+- Don't put `--odf-text` on the accent.
 - Don't add a second illustration to balance the layout.
 
 ## 9. Agent prompt guide
 
-> Build this in the Ember theme: `--ofr-bg` page, 72px padding, a single left
+> Build this in the Ember theme: `--odf-bg` page, 72px padding, a single left
 > column no wider than 34rem. Hero in the serif at 52px/1.08, body 14px/1.65 in
-> `--ofr-muted`. Exactly one `--ofr-accent` pill button with `--ofr-bg` text.
+> `--odf-muted`. Exactly one `--odf-accent` pill button with `--odf-bg` text.
 > Leave the bottom third empty. No serif under 22px.

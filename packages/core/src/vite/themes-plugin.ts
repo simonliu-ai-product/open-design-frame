@@ -15,7 +15,7 @@ type Body = { markdown?: unknown; design?: unknown; name?: unknown };
  */
 export function themesPlugin(ctx: OpsContext): Plugin {
   return {
-    name: 'open-frame:themes',
+    name: 'open-design-frame:themes',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/__themes', (req, res, next) => {

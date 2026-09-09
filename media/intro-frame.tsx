@@ -1,4 +1,4 @@
-import { type Frame, type FrameMeta, Layer, SIZES } from '@open-frame/core';
+import { type Frame, type FrameMeta, Layer, SIZES } from '@open-design-frame/core';
 import aurora from '../../themes/aurora';
 
 export const meta: FrameMeta = { title: 'Release — v0.1', createdAt: '2026-09-09' };
@@ -16,8 +16,8 @@ const Release: Frame = () => (
       flexDirection: 'column',
       justifyContent: 'center',
       gap: 26,
-      background: 'var(--ofr-bg)',
-      color: 'var(--ofr-text)',
+      background: 'var(--odf-bg)',
+      color: 'var(--odf-text)',
     }}
   >
     <Layer
@@ -25,11 +25,11 @@ const Release: Frame = () => (
       kind="text"
       as="span"
       style={{
-        fontFamily: 'var(--ofr-font-mono)',
-        fontSize: 'var(--ofr-size-caption)',
+        fontFamily: 'var(--odf-font-mono)',
+        fontSize: 'var(--odf-size-caption)',
         letterSpacing: '0.22em',
         textTransform: 'uppercase',
-        color: 'var(--ofr-accent)',
+        color: 'var(--odf-accent)',
       }}
     >
       Written by an agent · just now
@@ -39,7 +39,7 @@ const Release: Frame = () => (
       kind="text"
       as="span"
       style={{
-        fontSize: 'var(--ofr-size-hero)',
+        fontSize: 'var(--odf-size-hero)',
         fontWeight: 600,
         lineHeight: 1.04,
         letterSpacing: '-0.03em',
@@ -53,9 +53,9 @@ const Release: Frame = () => (
       kind="text"
       as="span"
       style={{
-        fontSize: 'var(--ofr-size-title)',
+        fontSize: 'var(--odf-size-title)',
         lineHeight: 1.55,
-        color: 'var(--ofr-muted)',
+        color: 'var(--odf-muted)',
         maxWidth: 720,
       }}
     >
@@ -68,11 +68,11 @@ const Release: Frame = () => (
           style={{
             padding: '10px 18px',
             borderRadius: 999,
-            border: '1px solid var(--ofr-line)',
-            background: 'var(--ofr-surface)',
-            color: 'var(--ofr-muted)',
-            fontFamily: 'var(--ofr-font-mono)',
-            fontSize: 'var(--ofr-size-body)',
+            border: '1px solid var(--odf-line)',
+            background: 'var(--odf-surface)',
+            color: 'var(--odf-muted)',
+            fontFamily: 'var(--odf-font-mono)',
+            fontSize: 'var(--odf-size-body)',
           }}
         >
           {label}

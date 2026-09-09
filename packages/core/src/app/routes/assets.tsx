@@ -1,4 +1,4 @@
-import { frameIds } from 'virtual:open-frame/frames';
+import { frameIds } from 'virtual:open-design-frame/frames';
 import { useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -90,7 +90,7 @@ export function AssetsPage() {
 
   return (
     <main
-      className={dragging ? 'of-home of-assets-drop' : 'of-home'}
+      className={dragging ? 'odf-home odf-assets-drop' : 'odf-home'}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -102,13 +102,13 @@ export function AssetsPage() {
         if (e.dataTransfer.files.length > 0) void upload(e.dataTransfer.files);
       }}
     >
-      <header className="of-assets-head">
-        <code className="of-assets-path">
+      <header className="odf-assets-head">
+        <code className="odf-assets-path">
           ASSETS {folderOf(uploadScope)} · {String(shown.length).padStart(2, '0')} files
         </code>
         <button
           type="button"
-          className="of-btn of-btn-primary"
+          className="odf-btn odf-btn-primary"
           onClick={() => picker.current?.click()}
         >
           <i aria-hidden="true">↑</i> Upload
@@ -125,9 +125,9 @@ export function AssetsPage() {
         />
       </header>
 
-      <div className="of-assets-bar">
-        <label className="of-search">
-          <span className="of-search-icon" aria-hidden="true">
+      <div className="odf-assets-bar">
+        <label className="odf-search">
+          <span className="odf-search-icon" aria-hidden="true">
             ⌕
           </span>
           <input
@@ -138,7 +138,7 @@ export function AssetsPage() {
           />
         </label>
 
-        <label className="of-sort">
+        <label className="odf-sort">
           <select value={scope ?? ''} aria-label="Scope" onChange={(e) => setScope(e.target.value)}>
             <option value="">All scopes</option>
             <option value={GLOBAL_SCOPE}>Global</option>
@@ -150,7 +150,7 @@ export function AssetsPage() {
           </select>
         </label>
 
-        <label className="of-sort">
+        <label className="odf-sort">
           <select
             value={usage}
             aria-label="Usage"
@@ -162,7 +162,7 @@ export function AssetsPage() {
           </select>
         </label>
 
-        <label className="of-sort">
+        <label className="odf-sort">
           <select
             value={type}
             aria-label="Type"
@@ -175,7 +175,7 @@ export function AssetsPage() {
           </select>
         </label>
 
-        <label className="of-sort">
+        <label className="odf-sort">
           <select
             value={sort}
             aria-label="Sort by"
@@ -188,20 +188,20 @@ export function AssetsPage() {
         </label>
         <button
           type="button"
-          className="of-chip"
+          className="odf-chip"
           aria-label={ascending ? 'Sort descending' : 'Sort ascending'}
           onClick={() => setAscending((v) => !v)}
         >
           {ascending ? '↑' : '↓'}
         </button>
 
-        <span className="of-spacer" />
+        <span className="odf-spacer" />
 
         {list ? null : (
-          <label className="of-columns">
+          <label className="odf-columns">
             <input
               type="range"
-              className="of-slider"
+              className="odf-slider"
               min={2}
               max={7}
               step={1}
@@ -212,10 +212,10 @@ export function AssetsPage() {
             <b>{columns}</b>
           </label>
         )}
-        <span className="of-segment">
+        <span className="odf-segment">
           <button
             type="button"
-            className="of-seg"
+            className="odf-seg"
             aria-current={!list}
             onClick={() => setList(false)}
           >
@@ -223,7 +223,7 @@ export function AssetsPage() {
           </button>
           <button
             type="button"
-            className="of-seg"
+            className="odf-seg"
             aria-current={list}
             onClick={() => setList(true)}
           >
@@ -232,44 +232,44 @@ export function AssetsPage() {
         </span>
       </div>
 
-      {status ? <p className="of-error of-error-inline">{status}</p> : null}
+      {status ? <p className="odf-error odf-error-inline">{status}</p> : null}
 
       {shown.length === 0 ? (
-        <div className="of-assets-empty">
-          <span className="of-assets-empty-mark" aria-hidden="true">
+        <div className="odf-assets-empty">
+          <span className="odf-assets-empty-mark" aria-hidden="true">
             ▤
           </span>
-          <p className="of-assets-empty-title">
+          <p className="odf-assets-empty-title">
             {assets.length === 0 ? 'No assets yet' : 'Nothing matches those filters'}
           </p>
-          <p className="of-note">
+          <p className="odf-note">
             Drop files anywhere here, or use Upload. They are written to{' '}
             <code>{folderOf(uploadScope)}</code>.
           </p>
         </div>
       ) : list ? (
-        <div className="of-asset-rows">
+        <div className="odf-asset-rows">
           {shown.map((asset) => (
-            <div className="of-asset-row" key={`${asset.scope}/${asset.name}`}>
-              <span className="of-asset-thumb">
+            <div className="odf-asset-row" key={`${asset.scope}/${asset.name}`}>
+              <span className="odf-asset-thumb">
                 {asset.type.startsWith('image/') ? (
                   <img src={asset.url} alt="" />
                 ) : (
-                  <span className="of-asset-ext">
+                  <span className="odf-asset-ext">
                     {asset.name.split('.').pop()?.toUpperCase() ?? 'FILE'}
                   </span>
                 )}
               </span>
-              <span className="of-asset-name">{asset.name}</span>
-              <span className="of-asset-meta">{folderOf(asset.scope)}</span>
-              <span className="of-asset-meta">{sizeLabel(asset.bytes)}</span>
-              <span className="of-asset-meta">
+              <span className="odf-asset-name">{asset.name}</span>
+              <span className="odf-asset-meta">{folderOf(asset.scope)}</span>
+              <span className="odf-asset-meta">{sizeLabel(asset.bytes)}</span>
+              <span className="odf-asset-meta">
                 {asset.usedBy.length === 0 ? 'unused' : `used by ${asset.usedBy.join(', ')}`}
               </span>
-              <span className="of-asset-actions">
+              <span className="odf-asset-actions">
                 <button
                   type="button"
-                  className="of-chip"
+                  className="odf-chip"
                   onClick={() => {
                     void navigator.clipboard.writeText(referenceFor(asset));
                     setStatus(`Copied ${referenceFor(asset)}`);
@@ -277,7 +277,7 @@ export function AssetsPage() {
                 >
                   Copy path
                 </button>
-                <button type="button" className="of-chip" onClick={() => void remove(asset)}>
+                <button type="button" className="odf-chip" onClick={() => void remove(asset)}>
                   Delete
                 </button>
               </span>
@@ -286,31 +286,31 @@ export function AssetsPage() {
         </div>
       ) : (
         <div
-          className="of-assets-grid"
+          className="odf-assets-grid"
           style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
         >
           {shown.map((asset) => (
-            <figure className="of-asset" key={`${asset.scope}/${asset.name}`}>
-              <span className="of-asset-preview">
+            <figure className="odf-asset" key={`${asset.scope}/${asset.name}`}>
+              <span className="odf-asset-preview">
                 {asset.type.startsWith('image/') ? (
                   <img src={asset.url} alt={asset.name} />
                 ) : (
-                  <span className="of-asset-ext">
+                  <span className="odf-asset-ext">
                     {asset.name.split('.').pop()?.toUpperCase() ?? 'FILE'}
                   </span>
                 )}
               </span>
               <figcaption>
-                <span className="of-asset-name">{asset.name}</span>
-                <span className="of-asset-meta">
+                <span className="odf-asset-name">{asset.name}</span>
+                <span className="odf-asset-meta">
                   {sizeLabel(asset.bytes)} ·{' '}
                   {asset.usedBy.length === 0 ? 'unused' : `used ×${asset.usedBy.length}`}
                 </span>
               </figcaption>
-              <span className="of-asset-actions">
+              <span className="odf-asset-actions">
                 <button
                   type="button"
-                  className="of-chip"
+                  className="odf-chip"
                   onClick={() => {
                     void navigator.clipboard.writeText(referenceFor(asset));
                     setStatus(`Copied ${referenceFor(asset)}`);
@@ -318,7 +318,7 @@ export function AssetsPage() {
                 >
                   Copy path
                 </button>
-                <button type="button" className="of-chip" onClick={() => void remove(asset)}>
+                <button type="button" className="odf-chip" onClick={() => void remove(asset)}>
                   Delete
                 </button>
               </span>

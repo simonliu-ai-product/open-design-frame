@@ -5,6 +5,6 @@ export { editPlugin } from './edit-plugin.ts';
 export { foldersPlugin } from './folders-plugin.ts';
 export { framesPlugin } from './frames-plugin.ts';
 export { LOC_ATTR, locTagsPlugin } from './loc-tags-plugin.ts';
-export type { OpenFramePluginOptions } from './open-frame-plugin.ts';
-export { openFramePlugin } from './open-frame-plugin.ts';
+export type { OpenDesignFramePluginOptions } from './open-design-frame-plugin.ts';
+export { openDesignFramePlugin } from './open-design-frame-plugin.ts';
 export { themesPlugin } from './themes-plugin.ts';

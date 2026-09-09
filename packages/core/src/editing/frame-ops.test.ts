@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { nextCopyId, setMetaTitle, validateFrameName } from './frame-ops.ts';
 
-const WITH_TITLE = `import { SIZES } from '@open-frame/core';
+const WITH_TITLE = `import { SIZES } from '@open-design-frame/core';
 
 export const meta = { title: 'Ember — Onboarding', createdAt: '2026-09-01' };
 
@@ -33,10 +33,10 @@ describe('naming a frame', () => {
   });
 
   it('writes a meta export when the file has none, below the imports', () => {
-    const source = "import { SIZES } from '@open-frame/core';\n\nexport default [];\n";
+    const source = "import { SIZES } from '@open-design-frame/core';\n\nexport default [];\n";
     const out = setMetaTitle(source, 'First name');
     expect(out).toBe(
-      "import { SIZES } from '@open-frame/core';\n\n" +
+      "import { SIZES } from '@open-design-frame/core';\n\n" +
         "export const meta = { title: 'First name' };\n\nexport default [];\n",
     );
   });

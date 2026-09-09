@@ -1,4 +1,4 @@
-# open-frame
+# open-design-frame
 
 **Design frames, written as components.**
 
@@ -7,16 +7,16 @@ You write it in TSX, the canvas shows it at true size, and the inspector edits
 it by rewriting the file you wrote.
 
 The third of a family: [open-doc](https://github.com/simonliu-ai-product/open-doc)
-is documents, open-slide is decks, open-frame is design surfaces.
+is documents, open-slide is decks, open-design-frame is design surfaces.
 
-https://github.com/simonliu-ai-product/open-frame — 30 seconds of it working:
+https://github.com/simonliu-ai-product/open-design-frame — 30 seconds of it working:
 [`media/intro.mp4`](media/intro.mp4).
 
 ## Getting started
 
 ```bash
-pnpm add -D @open-frame/core
-open-frame dev          # canvas at http://localhost:5274
+pnpm add -D @open-design-frame/core
+open-design-frame dev          # canvas at http://localhost:5274
 ```
 
 From a clone of this repository:
@@ -33,7 +33,7 @@ pnpm dev
 `frames/<id>/index.tsx` default-exports an array of frames:
 
 ```tsx
-import { type Frame, Layer, SIZES } from '@open-frame/core';
+import { type Frame, Layer, SIZES } from '@open-design-frame/core';
 
 const Welcome: Frame = () => (
   <Layer name="Hero" style={{ padding: 72 }}>
@@ -53,7 +53,7 @@ export default [Welcome];
   (`DESKTOP`, `LAPTOP`, `TABLET`, `PHONE`, `SQUARE`); any `{ width, height }`
   works.
 - **`design`** exports the tokens the frame styles itself with — they become
-  `--ofr-*` CSS variables.
+  `--odf-*` CSS variables.
 - **`<Layer name="…">`** is what puts a piece of the frame in the inspector.
   Unwrapped markup renders the same, it just cannot be selected.
 
@@ -107,7 +107,7 @@ theme's tokens — colour ramps, type specimens, the controls it would paint —
 so it cannot show something the frames will not do. Below it is the
 [DESIGN.md](https://www.thisweb.dev/articles/design-md): atmosphere, spacing,
 component rules, do's and don'ts, and the prompt an agent should be handed. If
-there is none yet, open-frame will start one from the tokens it already knows.
+there is none yet, open-design-frame will start one from the tokens it already knows.
 
 ## Folders
 
@@ -145,7 +145,7 @@ page or use Upload; **Copy path** gives you the import to paste.
 ## For agents
 
 ```bash
-pnpm add -D @open-frame/mcp
+pnpm add -D @open-design-frame/mcp
 pnpm dev --mcp        # canvas at :5274, MCP endpoint at :5274/mcp
 ```
 

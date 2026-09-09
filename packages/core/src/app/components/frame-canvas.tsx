@@ -57,14 +57,14 @@ export function FrameCanvas(props: FrameCanvasProps) {
   const vars = design ? (designToCssVars(design) as CSSProperties) : undefined;
 
   return (
-    <div ref={boxRef} className={`of-canvas-box ${className ?? ''}`}>
+    <div ref={boxRef} className={`odf-canvas-box ${className ?? ''}`}>
       <div
-        className="of-canvas-scaler"
+        className="odf-canvas-scaler"
         style={{ width: size.width * applied, height: size.height * applied }}
       >
         <div
           ref={innerRef}
-          className={flat ? 'of-frame of-frame-flat' : 'of-frame'}
+          className={flat ? 'odf-frame odf-frame-flat' : 'odf-frame'}
           style={{
             ...vars,
             width: size.width,

@@ -1,5 +1,5 @@
-import docs from 'virtual:open-frame/theme-docs';
-import { loadTheme, themeIds } from 'virtual:open-frame/themes';
+import docs from 'virtual:open-design-frame/theme-docs';
+import { loadTheme, themeIds } from 'virtual:open-design-frame/themes';
 import { useEffect, useState } from 'react';
 import type { DesignSystem } from './design.ts';
 import type { ThemeMeta, ThemeModule } from './sdk.ts';

@@ -1,4 +1,4 @@
-import type { DesignSystem, ThemeMeta } from '@open-frame/core';
+import type { DesignSystem, ThemeMeta } from '@open-design-frame/core';
 
 export const meta: ThemeMeta = {
   name: 'Paper',

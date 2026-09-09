@@ -8,7 +8,7 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["@open-frame/core/env"]
+    "types": ["@open-design-frame/core/env"]
   },
-  "include": ["frames", "themes", "open-frame.config.ts"]
+  "include": ["frames", "themes", "open-design-frame.config.ts"]
 }

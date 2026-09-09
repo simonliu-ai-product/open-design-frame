@@ -14,5 +14,5 @@ export type MarkdownProps = { text: string };
 export function Markdown({ text }: MarkdownProps) {
   const html = useMemo(() => marked.parse(text, { async: false }) as string, [text]);
   // biome-ignore lint/security/noDangerouslySetInnerHtml: the source is the workspace's own file
-  return <div className="of-md" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div className="odf-md" dangerouslySetInnerHTML={{ __html: html }} />;
 }

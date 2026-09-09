@@ -8,9 +8,9 @@ export type LayerNode = {
   children: LayerNode[];
 };
 
-export const LAYER_ATTR = 'data-ofr-layer';
-export const LAYER_KIND_ATTR = 'data-ofr-kind';
-export const LAYER_ID_ATTR = 'data-ofr-id';
+export const LAYER_ATTR = 'data-odf-layer';
+export const LAYER_KIND_ATTR = 'data-odf-kind';
+export const LAYER_ID_ATTR = 'data-odf-id';
 /**
  * Where a click on this layer goes when the frame is played.
  *
@@ -18,7 +18,7 @@ export const LAYER_ID_ATTR = 'data-ofr-id';
  * what happens has to be written down in the frame — a player that invented its
  * own links would be showing a flow nobody designed.
  */
-export const LAYER_TO_ATTR = 'data-ofr-to';
+export const LAYER_TO_ATTR = 'data-odf-to';
 
 const KINDS = new Set<LayerKind>(['group', 'text', 'shape', 'image', 'line']);
 

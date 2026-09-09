@@ -43,8 +43,8 @@ export function starterDesignDoc(name: string, design: DesignSystem): string {
 | --- | --- |
 ${colours}
 
-Use \`--ofr-accent\` for one thing per screen. Text is \`--ofr-text\` on
-\`--ofr-bg\`; secondary text is \`--ofr-muted\`.
+Use \`--odf-accent\` for one thing per screen. Text is \`--odf-text\` on
+\`--odf-bg\`; secondary text is \`--odf-muted\`.
 
 ## 3. Typography
 
@@ -61,7 +61,7 @@ ${sizes}
 
 ## 5. Component styles
 
-- Corner radius: ${radius ?? 0}px (\`--ofr-radius\`)
+- Corner radius: ${radius ?? 0}px (\`--odf-radius\`)
 
 <!-- Buttons, cards, inputs: borders, padding, states. -->
 

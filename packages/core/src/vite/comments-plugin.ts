@@ -7,7 +7,7 @@ type AddBody = { frameId?: unknown; line?: unknown; column?: unknown; note?: unk
 /** Notes on a frame, kept in the frame's own file. Dev only. */
 export function commentsPlugin(ctx: OpsContext): Plugin {
   return {
-    name: 'open-frame:comments',
+    name: 'open-design-frame:comments',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/__comments', (req, res, next) => {

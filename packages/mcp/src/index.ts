@@ -7,10 +7,10 @@ import {
   McpServer,
   originValidationResponse,
 } from '@modelcontextprotocol/server';
-import { makeContext, type OpsContext } from '@open-frame/core/ops';
+import { makeContext, type OpsContext } from '@open-design-frame/core/ops';
 import { registerTools } from './tools.ts';
 
-export type OpenFrameMcpOptions = {
+export type OpenDesignFrameMcpOptions = {
   /** The workspace root — the directory holding `frames/`. */
   userCwd: string;
   framesDir?: string;
@@ -24,7 +24,7 @@ export type OpenFrameMcpOptions = {
   allowedHosts?: string[];
 };
 
-function contextFor(opts: OpenFrameMcpOptions): OpsContext {
+function contextFor(opts: OpenDesignFrameMcpOptions): OpsContext {
   return makeContext({
     userCwd: opts.userCwd,
     ...(opts.framesDir !== undefined ? { framesDir: opts.framesDir } : {}),
@@ -41,20 +41,20 @@ function contextFor(opts: OpenFrameMcpOptions): OpsContext {
  * — which is the stateless shape that lets a client connect without a session
  * handshake.
  */
-export function createOpenFrameMcpServer(opts: OpenFrameMcpOptions): McpServer {
+export function createOpenDesignFrameMcpServer(opts: OpenDesignFrameMcpOptions): McpServer {
   const server = new McpServer({
-    name: 'open-frame',
+    name: 'open-design-frame',
     version: opts.version ?? '0.0.0',
-    title: 'open-frame',
+    title: 'open-design-frame',
   });
   registerTools(server, contextFor(opts));
   return server;
 }
 
-export function createOpenFrameMcpHandler(opts: OpenFrameMcpOptions) {
+export function createOpenDesignFrameMcpHandler(opts: OpenDesignFrameMcpOptions) {
   const allowedHostnames = [...localhostAllowedHostnames(), ...(opts.allowedHosts ?? [])];
   const allowedOrigins = [...localhostAllowedOrigins(), ...(opts.allowedHosts ?? [])];
-  const handler = createMcpHandler(() => createOpenFrameMcpServer(opts));
+  const handler = createMcpHandler(() => createOpenDesignFrameMcpServer(opts));
 
   return {
     ...handler,
@@ -74,6 +74,6 @@ export function createOpenFrameMcpHandler(opts: OpenFrameMcpOptions) {
 }
 
 /** Connect-style middleware, for mounting on the dev server. */
-export function createOpenFrameMcpMiddleware(opts: OpenFrameMcpOptions) {
-  return toNodeHandler(createOpenFrameMcpHandler(opts));
+export function createOpenDesignFrameMcpMiddleware(opts: OpenDesignFrameMcpOptions) {
+  return toNodeHandler(createOpenDesignFrameMcpHandler(opts));
 }

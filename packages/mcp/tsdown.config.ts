@@ -8,5 +8,5 @@ export default defineConfig({
   clean: true,
   dts: true,
   shims: false,
-  external: ['@open-frame/core'],
+  external: ['@open-design-frame/core'],
 });

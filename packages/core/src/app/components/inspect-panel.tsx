@@ -134,7 +134,7 @@ function LayerRow({
   return (
     <>
       <div
-        className="of-layer"
+        className="odf-layer"
         aria-current={node.element === selected}
         style={{ paddingLeft: 12 + depth * 13 }}
         onPointerDown={() => onSelect(node.element)}
@@ -142,7 +142,7 @@ function LayerRow({
         {hasChildren ? (
           <button
             type="button"
-            className="of-twisty"
+            className="odf-twisty"
             aria-expanded={open}
             aria-label={open ? 'Collapse' : 'Expand'}
             onPointerDown={(e) => {
@@ -153,10 +153,10 @@ function LayerRow({
             {open ? '⌄' : '›'}
           </button>
         ) : (
-          <span className="of-twisty of-twisty-blank" />
+          <span className="odf-twisty odf-twisty-blank" />
         )}
-        <span className="of-layer-mark">{MARK[node.kind]}</span>
-        <span className="of-layer-name">{node.name}</span>
+        <span className="odf-layer-mark">{MARK[node.kind]}</span>
+        <span className="odf-layer-name">{node.name}</span>
       </div>
       {open
         ? node.children.map((child) => (
@@ -175,9 +175,9 @@ function LayerRow({
 
 function Field({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
-    <div className="of-field">
-      <span className="of-field-label">{label}</span>
-      <span className="of-field-value">
+    <div className="odf-field">
+      <span className="odf-field-label">{label}</span>
+      <span className="odf-field-value">
         {value}
         {unit ? <i>{unit}</i> : null}
       </span>
@@ -221,10 +221,10 @@ function Range({
   };
 
   return (
-    <div className="of-field">
-      <span className="of-field-label">{label}</span>
+    <div className="odf-field">
+      <span className="odf-field-label">{label}</span>
       <input
-        className="of-slider"
+        className="odf-slider"
         type="range"
         min={min}
         max={max}
@@ -233,9 +233,9 @@ function Range({
         aria-label={label}
         onChange={(e) => onChange(Number.parseFloat(e.target.value))}
       />
-      <span className="of-field-value of-field-edit">
+      <span className="odf-field-value odf-field-edit">
         <input
-          className="of-input of-input-num"
+          className="odf-input odf-input-num"
           value={draft}
           inputMode="decimal"
           onChange={(e) => setDraft(e.target.value)}
@@ -264,12 +264,12 @@ function ColorField({
   useEffect(() => setDraft(value), [value]);
   const swatch = /^#[0-9a-f]{6}$/i.test(draft) ? draft : '#000000';
   return (
-    <div className="of-field">
-      <span className="of-field-label">{label}</span>
-      <span className="of-field-value of-field-edit of-color-field">
+    <div className="odf-field">
+      <span className="odf-field-label">{label}</span>
+      <span className="odf-field-value odf-field-edit odf-color-field">
         <input
           type="color"
-          className="of-color"
+          className="odf-color"
           value={swatch}
           aria-label={`${label} colour`}
           onChange={(e) => {
@@ -278,7 +278,7 @@ function ColorField({
           }}
         />
         <input
-          className="of-input of-input-hex"
+          className="odf-input odf-input-hex"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={() => /^#[0-9a-f]{6}$/i.test(draft) && onChange(draft.toUpperCase())}
@@ -341,24 +341,24 @@ export function InspectPanel(props: InspectPanelProps) {
   }, [selected, revision]);
 
   return (
-    <div className="of-panel">
-      <header className="of-panel-head">
-        <span className="of-panel-title">
+    <div className="odf-panel">
+      <header className="odf-panel-head">
+        <span className="odf-panel-title">
           {mode === 'inspect' ? 'Inspect' : 'Export'}
           {mode === 'inspect' && measured ? <code>&lt;{measured.tag}&gt;</code> : null}
         </span>
-        <button type="button" className="of-close" aria-label="Close" onClick={onClose}>
+        <button type="button" className="odf-close" aria-label="Close" onClick={onClose}>
           ✕
         </button>
       </header>
 
       {mode === 'inspect' ? (
-        <div className="of-panel-body">
-          <div className="of-panel-tabs">
-            <span className="of-segment">
+        <div className="odf-panel-body">
+          <div className="odf-panel-tabs">
+            <span className="odf-segment">
               <button
                 type="button"
-                className="of-seg"
+                className="odf-seg"
                 aria-current={tab === 'typography'}
                 onClick={() => setTab('typography')}
               >
@@ -366,7 +366,7 @@ export function InspectPanel(props: InspectPanelProps) {
               </button>
               <button
                 type="button"
-                className="of-seg"
+                className="odf-seg"
                 aria-current={tab === 'layers'}
                 onClick={() => setTab('layers')}
               >
@@ -380,9 +380,9 @@ export function InspectPanel(props: InspectPanelProps) {
               <>
                 {measured.textish ? (
                   <>
-                    <div className="of-section-label">Content</div>
+                    <div className="odf-section-label">Content</div>
                     <textarea
-                      className="of-textarea"
+                      className="odf-textarea"
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                       onBlur={() => text !== (selected.textContent ?? '') && onText(text)}
@@ -399,11 +399,11 @@ export function InspectPanel(props: InspectPanelProps) {
                   unit="PX"
                   onChange={(v) => onStyle('fontSize', `${v}px`)}
                 />
-                <div className="of-field">
-                  <span className="of-field-label">Weight</span>
-                  <span className="of-field-value of-field-edit">
+                <div className="odf-field">
+                  <span className="odf-field-label">Weight</span>
+                  <span className="odf-field-value odf-field-edit">
                     <select
-                      className="of-select"
+                      className="odf-select"
                       aria-label="Weight"
                       value={WEIGHTS.some(([w]) => w === measured.weight) ? measured.weight : '400'}
                       onChange={(e) => onStyle('fontWeight', e.target.value)}
@@ -416,12 +416,12 @@ export function InspectPanel(props: InspectPanelProps) {
                     </select>
                   </span>
                 </div>
-                <div className="of-field">
-                  <span className="of-field-label">Style</span>
-                  <span className="of-toggles">
+                <div className="odf-field">
+                  <span className="odf-field-label">Style</span>
+                  <span className="odf-toggles">
                     <button
                       type="button"
-                      className="of-toggle of-toggle-bold"
+                      className="odf-toggle odf-toggle-bold"
                       aria-pressed={Number(measured.weight) >= 600}
                       aria-label="Bold"
                       onClick={() =>
@@ -432,7 +432,7 @@ export function InspectPanel(props: InspectPanelProps) {
                     </button>
                     <button
                       type="button"
-                      className="of-toggle of-toggle-italic"
+                      className="odf-toggle odf-toggle-italic"
                       aria-pressed={measured.italic}
                       aria-label="Italic"
                       onClick={() => onStyle('fontStyle', measured.italic ? 'normal' : 'italic')}
@@ -458,14 +458,14 @@ export function InspectPanel(props: InspectPanelProps) {
                   unit="PX"
                   onChange={(v) => onStyle('letterSpacing', `${v}px`)}
                 />
-                <div className="of-field">
-                  <span className="of-field-label">Align</span>
-                  <span className="of-toggles">
+                <div className="odf-field">
+                  <span className="odf-field-label">Align</span>
+                  <span className="odf-toggles">
                     {ALIGNS.map((align) => (
                       <button
                         key={align}
                         type="button"
-                        className="of-toggle"
+                        className="odf-toggle"
                         aria-pressed={measured.align === align}
                         aria-label={`Align ${align}`}
                         onClick={() => onStyle('textAlign', align)}
@@ -476,7 +476,7 @@ export function InspectPanel(props: InspectPanelProps) {
                   </span>
                 </div>
 
-                <div className="of-section-label">Color</div>
+                <div className="odf-section-label">Color</div>
                 <ColorField
                   label="Text"
                   value={measured.color}
@@ -488,7 +488,7 @@ export function InspectPanel(props: InspectPanelProps) {
                   onChange={(v) => onStyle('backgroundColor', v)}
                 />
 
-                <div className="of-section-label">Box</div>
+                <div className="odf-section-label">Box</div>
                 <Field label="Size" value={`${measured.width} × ${measured.height}`} />
 
                 {commentTarget && onComment ? (
@@ -496,15 +496,15 @@ export function InspectPanel(props: InspectPanelProps) {
                 ) : null}
               </>
             ) : (
-              <p className="of-note of-note-pad">Click something on the canvas to inspect it.</p>
+              <p className="odf-note odf-note-pad">Click something on the canvas to inspect it.</p>
             )
           ) : layers.length === 0 ? (
-            <p className="of-note of-note-pad">
+            <p className="odf-note odf-note-pad">
               Nothing named yet. Wrap a part of the frame in <code>&lt;Layer name="…"&gt;</code> to
               list it here.
             </p>
           ) : (
-            <div className="of-layer-list">
+            <div className="odf-layer-list">
               {layers.map((node) => (
                 <LayerRow
                   key={node.id}
@@ -518,12 +518,12 @@ export function InspectPanel(props: InspectPanelProps) {
           )}
         </div>
       ) : (
-        <div className="of-panel-body of-panel-pad">
-          <div className="of-section-label">Pages</div>
-          <div className="of-chips">
+        <div className="odf-panel-body odf-panel-pad">
+          <div className="odf-section-label">Pages</div>
+          <div className="odf-chips">
             <button
               type="button"
-              className="of-chip"
+              className="odf-chip"
               aria-current={scope === 'frame'}
               onClick={() => setScope('frame')}
             >
@@ -531,7 +531,7 @@ export function InspectPanel(props: InspectPanelProps) {
             </button>
             <button
               type="button"
-              className="of-chip"
+              className="odf-chip"
               aria-current={scope === 'file'}
               onClick={() => setScope('file')}
             >
@@ -539,13 +539,13 @@ export function InspectPanel(props: InspectPanelProps) {
             </button>
           </div>
 
-          <div className="of-section-label">Include</div>
-          <div className="of-chips">
+          <div className="odf-section-label">Include</div>
+          <div className="odf-chips">
             {FORMATS.map((f) => (
               <button
                 key={f}
                 type="button"
-                className="of-chip"
+                className="odf-chip"
                 aria-current={formats.includes(f)}
                 onClick={() =>
                   setFormats((prev) =>
@@ -558,13 +558,13 @@ export function InspectPanel(props: InspectPanelProps) {
             ))}
           </div>
 
-          <div className="of-section-label">Scale</div>
-          <div className="of-chips">
+          <div className="odf-section-label">Scale</div>
+          <div className="odf-chips">
             {SCALES.map((s) => (
               <button
                 key={s}
                 type="button"
-                className="of-chip"
+                className="odf-chip"
                 aria-current={scale === s}
                 disabled={!formats.includes('png')}
                 onClick={() => setScale(s)}
@@ -581,16 +581,16 @@ export function InspectPanel(props: InspectPanelProps) {
 
           <button
             type="button"
-            className="of-primary"
+            className="odf-primary"
             disabled={busy || formats.length === 0}
             onClick={() => onExport(scope, scale, formats)}
           >
             {busy ? 'Exporting…' : 'Export zip'}
           </button>
-          {status ? <p className="of-note">{status}</p> : null}
+          {status ? <p className="odf-note">{status}</p> : null}
 
           {/* What lands on disk, said before it does. */}
-          <p className="of-export-summary">
+          <p className="odf-export-summary">
             {formats.length === 0 ? (
               'Choose at least one format.'
             ) : (
@@ -605,17 +605,17 @@ export function InspectPanel(props: InspectPanelProps) {
             )}
           </p>
           {unsaved > 0 ? (
-            <p className="of-export-summary">
+            <p className="odf-export-summary">
               {unsaved} {unsaved === 1 ? 'layer is' : 'layers are'} edited but not saved — the
               export shows what the file says.
             </p>
           ) : null}
 
-          <div className="of-section-label">Palette</div>
-          <div className="of-swatches">
+          <div className="odf-section-label">Palette</div>
+          <div className="odf-swatches">
             {Object.entries(design.palette).map(([name, value]) =>
               value === undefined ? null : (
-                <span key={name} className="of-swatch" title={`${name} · ${value}`}>
+                <span key={name} className="odf-swatch" title={`${name} · ${value}`}>
                   <i style={{ background: value }} />
                   {name}
                 </span>

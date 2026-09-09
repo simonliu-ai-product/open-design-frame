@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 export type ChromeTheme = 'dark' | 'light';
 
-const KEY = 'open-frame:theme';
-const ATTR = 'data-of-theme';
+const KEY = 'open-design-frame:theme';
+const ATTR = 'data-odf-theme';
 
 /**
  * Dark or light for the viewer's own chrome.

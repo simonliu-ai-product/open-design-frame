@@ -1,4 +1,4 @@
-import snapshot from 'virtual:open-frame/folders';
+import snapshot from 'virtual:open-design-frame/folders';
 import { useCallback, useEffect, useState } from 'react';
 import type { FoldersManifest } from '../../editing/folders.ts';
 

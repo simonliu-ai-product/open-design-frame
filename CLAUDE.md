@@ -1,8 +1,8 @@
-# open-frame — Framework Repo Guide
+# open-design-frame — Framework Repo Guide
 
-You are working on the **open-frame framework** — the runtime, Vite plugins, and CLI.
+You are working on the **open-design-frame framework** — the runtime, Vite plugins, and CLI.
 
-open-frame is to design artboards what open-doc is to documents and open-slide is
+open-design-frame is to design artboards what open-doc is to documents and open-slide is
 to decks: the work is written as React components, and the viewer is a canvas
 rather than a page or a projector.
 
@@ -12,8 +12,8 @@ pnpm + Turbo monorepo.
 
 | Path | Package | Role |
 | --- | --- | --- |
-| `packages/core` | `@open-frame/core` | Runtime (canvas, frame rail, inspector, assets), Vite plugins, `open-frame` dev/build CLI. |
-| `packages/mcp` | `@open-frame/mcp` | MCP server over the same ops. Opt-in: `open-frame dev --mcp`. |
+| `packages/core` | `@open-design-frame/core` | Runtime (canvas, frame rail, inspector, assets), Vite plugins, `open-design-frame` dev/build CLI. |
+| `packages/mcp` | `@open-design-frame/mcp` | MCP server over the same ops. Opt-in: `open-design-frame dev --mcp`. |
 | `apps/demo` | private | Local consumer via `workspace:*`. Dogfood target — `pnpm dev`. |
 
 ## Workflow
@@ -27,8 +27,8 @@ pnpm check:fix    # auto-fix what biome can
 pnpm test         # vitest
 ```
 
-**After changing `packages/core/src`, rebuild it (`pnpm --filter @open-frame/core build`)
-before testing the demo** — the demo's `open-frame` binary runs the built `dist`.
+**After changing `packages/core/src`, rebuild it (`pnpm --filter @open-design-frame/core build`)
+before testing the demo** — the demo's `open-design-frame` binary runs the built `dist`.
 
 ## What a frame is
 
@@ -42,7 +42,7 @@ Dashboard.size = SIZES.DESKTOP;
 export default [Dashboard];
 ```
 
-`meta` names the file, `design` supplies the tokens (`--ofr-*`). Wrapping a part
+`meta` names the file, `design` supplies the tokens (`--odf-*`). Wrapping a part
 of the frame in `<Layer name="…">` is what puts it in the inspector's tree —
 unwrapped markup still renders, it just cannot be selected.
 
@@ -63,7 +63,7 @@ unwrapped markup still renders, it just cannot be selected.
 - **The layer tree is read from the DOM, not the source.** A frame is ordinary
   JSX — helpers, `map`, conditionals — so the component tree and the picture
   disagree the moment anything is generated. `collectLayers` walks rendered
-  `[data-ofr-layer]` elements, and the effect that runs it depends on the loaded
+  `[data-odf-layer]` elements, and the effect that runs it depends on the loaded
   module: keyed only by the frame id it runs once against a null ref.
 - **One implementation, two callers.** Everything that touches the workspace
   lives in `src/ops` and raises `OpsError` rather than writing status codes.
@@ -88,7 +88,7 @@ unwrapped markup still renders, it just cannot be selected.
   Discard reloads: undoing a preview by hand would be a second implementation of
   the same thing, and the source is already the answer.
 - **The inspector edits source, not the DOM.** `loc-tags-plugin` stamps
-  `data-of-loc="line:col"` onto host JSX in `frames/**` (dev only); the panel
+  `data-odf-loc="line:col"` onto host JSX in `frames/**` (dev only); the panel
   posts ops to `/__edit`, and `editing/edit-ops.ts` rewrites the file with
   Babel. Edits are staged until saved — a write and an HMR reload behind each
   digit of a font size is not an edit, it is a stutter.

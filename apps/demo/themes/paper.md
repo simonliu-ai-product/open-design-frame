@@ -11,12 +11,12 @@ should feel like a well-set page, not an app.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--ofr-bg` | `#FBFAF7` | The stock. Warm, never pure white. |
-| `--ofr-surface` | `#F2F0EA` | A pulled quote, a note, a table header. |
-| `--ofr-line` | `#E2DFD5` | Hairline rules, 1px. This theme rules, it does not box. |
-| `--ofr-text` | `#16150F` | Body. Warm black, never `#000000`. |
-| `--ofr-muted` | `#6D6A5E` | Captions, folios, footnotes. |
-| `--ofr-accent` | `#1B4DD8` | Links and one call to action per page. |
+| `--odf-bg` | `#FBFAF7` | The stock. Warm, never pure white. |
+| `--odf-surface` | `#F2F0EA` | A pulled quote, a note, a table header. |
+| `--odf-line` | `#E2DFD5` | Hairline rules, 1px. This theme rules, it does not box. |
+| `--odf-text` | `#16150F` | Body. Warm black, never `#000000`. |
+| `--odf-muted` | `#6D6A5E` | Captions, folios, footnotes. |
+| `--odf-accent` | `#1B4DD8` | Links and one call to action per page. |
 
 ## 3. Typography
 
@@ -43,11 +43,11 @@ fit more on the screen.
 
 ## 5. Component styles
 
-- Corner radius 6px (`--ofr-radius`) — nearly square, because paper is.
-- Links: `--ofr-accent`, underlined at 1px with a 2px offset.
-- Buttons: `--ofr-accent` fill with `--ofr-bg` text, 6px radius, no pill.
-- Tables: no vertical rules, 1px `--ofr-line` between rows, header in caption
-  size and `--ofr-muted`.
+- Corner radius 6px (`--odf-radius`) — nearly square, because paper is.
+- Links: `--odf-accent`, underlined at 1px with a 2px offset.
+- Buttons: `--odf-accent` fill with `--odf-bg` text, 6px radius, no pill.
+- Tables: no vertical rules, 1px `--odf-line` between rows, header in caption
+  size and `--odf-muted`.
 
 ## 6. Elevation & motion
 
@@ -69,7 +69,7 @@ Drawn at 1280×800 and 834×1112. The margin notes fold into the column below
 
 ## 9. Agent prompt guide
 
-> Build this in the Paper theme: `--ofr-bg` stock, no cards and no shadows —
-> separate with 1px `--ofr-line` rules. Display in the serif at 56px/1.06, body
-> 15px/1.75 sans on a 34rem measure. Links and one button in `--ofr-accent`,
+> Build this in the Paper theme: `--odf-bg` stock, no cards and no shadows —
+> separate with 1px `--odf-line` rules. Display in the serif at 56px/1.06, body
+> 15px/1.75 sans on a 34rem measure. Links and one button in `--odf-accent`,
 > 6px radius. No pure black or white.

@@ -30,16 +30,16 @@ export function CommentDock({ comments, error, onRemove }: CommentDockProps) {
   }, [open]);
 
   return (
-    <div className="of-comments" ref={ref}>
+    <div className="odf-comments" ref={ref}>
       {open ? (
-        <div className="of-comments-panel">
-          <header className="of-comments-head">
+        <div className="odf-comments-panel">
+          <header className="odf-comments-head">
             <span>
               {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
             </span>
             <button
               type="button"
-              className="of-close"
+              className="odf-close"
               aria-label="Close"
               onClick={() => setOpen(false)}
             >
@@ -47,21 +47,21 @@ export function CommentDock({ comments, error, onRemove }: CommentDockProps) {
             </button>
           </header>
 
-          {error ? <p className="of-error of-error-inline">{error}</p> : null}
+          {error ? <p className="odf-error odf-error-inline">{error}</p> : null}
 
           {comments.length === 0 ? (
-            <p className="of-note of-comments-empty">
+            <p className="odf-note odf-comments-empty">
               No notes on this frame yet. Select something and leave one in the Inspect panel.
             </p>
           ) : (
-            <ul className="of-comment-list">
+            <ul className="odf-comment-list">
               {comments.map((comment) => (
-                <li key={comment.id} className="of-comment">
-                  <span className="of-comment-line">line {comment.line}</span>
-                  <p className="of-comment-note">{comment.note}</p>
+                <li key={comment.id} className="odf-comment">
+                  <span className="odf-comment-line">line {comment.line}</span>
+                  <p className="odf-comment-note">{comment.note}</p>
                   <button
                     type="button"
-                    className="of-comment-remove"
+                    className="odf-comment-remove"
                     aria-label={`Delete comment on line ${comment.line}`}
                     onClick={() => onRemove(comment.id)}
                   >
@@ -76,7 +76,7 @@ export function CommentDock({ comments, error, onRemove }: CommentDockProps) {
 
       <button
         type="button"
-        className="of-comments-bubble"
+        className="odf-comments-bubble"
         aria-expanded={open}
         aria-label={`${comments.length} comments`}
         onClick={() => setOpen((v) => !v)}

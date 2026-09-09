@@ -18,12 +18,12 @@ export type FrameRailProps = {
  */
 export function FrameRail({ frames, design, current, onSelect }: FrameRailProps) {
   return (
-    <div className="of-rail">
-      <div className="of-rail-head">
+    <div className="odf-rail">
+      <div className="odf-rail-head">
         <span>Frames</span>
         <b>{String(frames.length).padStart(2, '0')}</b>
       </div>
-      <div className="of-rail-list">
+      <div className="odf-rail-list">
         {frames.map((frame, index) => {
           const size = sizeOf(frame);
           const name = nameOf(frame, index);
@@ -32,14 +32,14 @@ export function FrameRail({ frames, design, current, onSelect }: FrameRailProps)
             <button
               key={name}
               type="button"
-              className="of-rail-item"
+              className="odf-rail-item"
               aria-current={index === current}
               onClick={() => onSelect(index)}
             >
-              <span className="of-rail-index">{String(index + 1).padStart(2, '0')}</span>
-              <span className="of-rail-body">
+              <span className="odf-rail-index">{String(index + 1).padStart(2, '0')}</span>
+              <span className="odf-rail-body">
                 <span
-                  className="of-rail-thumb"
+                  className="odf-rail-thumb"
                   style={{ aspectRatio: `${size.width} / ${size.height}` }}
                 >
                   {/* No scale: the box knows how wide the rail is, a constant does not. */}
@@ -47,7 +47,7 @@ export function FrameRail({ frames, design, current, onSelect }: FrameRailProps)
                     <Component />
                   </FrameCanvas>
                 </span>
-                <span className="of-rail-name">{name}</span>
+                <span className="odf-rail-name">{name}</span>
               </span>
             </button>
           );

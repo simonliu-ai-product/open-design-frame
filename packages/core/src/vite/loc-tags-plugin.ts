@@ -7,7 +7,7 @@ import { LOC_ATTR } from '../editing/loc.ts';
 export { LOC_ATTR };
 
 /**
- * Stamps `data-of-loc="<line>:<col>"` onto every host element a frame renders.
+ * Stamps `data-odf-loc="<line>:<col>"` onto every host element a frame renders.
  *
  * The alternative is React's `_debugSource` on the fiber, which goes stale the
  * moment HMR replaces a module — the inspector then edits whatever used to be
@@ -85,7 +85,7 @@ export type LocTagsPluginOptions = { framesRoot: string };
 export function locTagsPlugin(opts: LocTagsPluginOptions): Plugin {
   const root = path.resolve(opts.framesRoot);
   return {
-    name: 'open-frame:loc-tags',
+    name: 'open-design-frame:loc-tags',
     apply: 'serve',
     enforce: 'pre',
     transform(code, id) {

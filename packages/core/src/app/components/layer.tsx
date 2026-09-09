@@ -10,7 +10,7 @@ import {
 
 export type LayerProps = {
   /** Stamped by the dev server so the inspector can find this in the source. */
-  'data-of-loc'?: string;
+  'data-odf-loc'?: string;
   name: string;
   kind?: LayerKind;
   /** Stable across renders, so selection survives an edit. Defaults to the name. */

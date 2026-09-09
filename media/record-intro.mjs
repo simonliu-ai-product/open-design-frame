@@ -33,11 +33,11 @@ const OVERLAY = `
     const mount = () => {
       const style = document.createElement('style');
       style.textContent = \`
-        #of-cap {
+        #odf-cap {
           position: fixed; left: 0; right: 0; bottom: 48px; z-index: 99996;
           display: flex; justify-content: center; pointer-events: none;
         }
-        #of-cap span {
+        #odf-cap span {
           padding: 14px 26px; border-radius: 999px;
           background: rgba(14,14,17,.82); backdrop-filter: blur(14px);
           border: 1px solid rgba(255,255,255,.10);
@@ -45,9 +45,9 @@ const OVERLAY = `
           letter-spacing: -0.01em; opacity: 0; transform: translateY(10px) scale(.98);
           transition: opacity .34s cubic-bezier(.22,.61,.36,1), transform .34s cubic-bezier(.22,.61,.36,1);
         }
-        #of-cap span[data-on="1"] { opacity: 1; transform: none; }
+        #odf-cap span[data-on="1"] { opacity: 1; transform: none; }
 
-        #of-cursor {
+        #odf-cursor {
           position: fixed; top: 0; left: 0; z-index: 99997; width: 22px; height: 22px;
           margin: -11px 0 0 -11px; border-radius: 999px; pointer-events: none;
           background: rgba(255,255,255,.92);
@@ -55,49 +55,49 @@ const OVERLAY = `
           opacity: 0;
           transition: transform .38s cubic-bezier(.22,.61,.36,1), opacity .3s ease, width .14s ease, height .14s ease;
         }
-        #of-cursor[data-on="1"] { opacity: 1; }
-        #of-cursor[data-press="1"] { width: 14px; height: 14px; margin: -7px 0 0 -7px; }
+        #odf-cursor[data-on="1"] { opacity: 1; }
+        #odf-cursor[data-press="1"] { width: 14px; height: 14px; margin: -7px 0 0 -7px; }
 
-        #of-veil {
+        #odf-veil {
           position: fixed; inset: 0; z-index: 99998; background: #0b0b10;
           opacity: 1; pointer-events: none; transition: opacity .28s ease;
         }
-        #of-veil[data-off="1"] { opacity: 0; }
+        #odf-veil[data-off="1"] { opacity: 0; }
 
-        .of-card-full {
+        .odf-card-full {
           position: fixed; inset: 0; z-index: 99999;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           gap: 20px; text-align: center; background: #0b0b10; color: #f4f4f7;
           font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
           opacity: 0; pointer-events: none; transition: opacity .55s ease;
         }
-        .of-card-full[data-on="1"] { opacity: 1; }
-        .of-card-full b {
+        .odf-card-full[data-on="1"] { opacity: 1; }
+        .odf-card-full b {
           font-size: 76px; font-weight: 600; letter-spacing: -0.035em;
           opacity: 0; transform: translateY(14px);
           transition: opacity .6s ease .12s, transform .6s cubic-bezier(.22,.61,.36,1) .12s;
         }
-        .of-card-full i {
+        .odf-card-full i {
           font-style: normal; font-size: 24px; color: #8b8b98;
           opacity: 0; transform: translateY(14px);
           transition: opacity .6s ease .26s, transform .6s cubic-bezier(.22,.61,.36,1) .26s;
         }
-        .of-card-full code {
+        .odf-card-full code {
           margin-top: 10px; padding: 14px 26px; border-radius: 12px;
           border: 1px solid #24242f; background: #15151d; color: #f4f4f7;
           font: 20px ui-monospace, SFMono-Regular, Menlo, monospace;
           opacity: 0; transform: translateY(14px);
           transition: opacity .6s ease .4s, transform .6s cubic-bezier(.22,.61,.36,1) .4s;
         }
-        .of-card-full em {
+        .odf-card-full em {
           font-style: normal; font-size: 15px; color: #6e6e78;
           letter-spacing: .16em; text-transform: uppercase;
           opacity: 0; transition: opacity .6s ease .54s;
         }
-        .of-card-full[data-on="1"] b,
-        .of-card-full[data-on="1"] i,
-        .of-card-full[data-on="1"] code { opacity: 1; transform: none; }
-        .of-card-full[data-on="1"] em { opacity: 1; }
+        .odf-card-full[data-on="1"] b,
+        .odf-card-full[data-on="1"] i,
+        .odf-card-full[data-on="1"] code { opacity: 1; transform: none; }
+        .odf-card-full[data-on="1"] em { opacity: 1; }
       \`;
       document.head.appendChild(style);
 
@@ -106,14 +106,14 @@ const OVERLAY = `
         el.innerHTML = html;
         document.body.appendChild(el.firstElementChild);
       };
-      add('<div id="of-cap"><span></span></div>');
-      add('<div id="of-cursor"></div>');
-      add('<div id="of-veil"></div>');
-      add('<div id="of-start" class="of-card-full"><b>open-frame</b>' +
+      add('<div id="odf-cap"><span></span></div>');
+      add('<div id="odf-cursor"></div>');
+      add('<div id="odf-veil"></div>');
+      add('<div id="odf-start" class="odf-card-full"><b>open-design-frame</b>' +
           '<i>Design frames, written as components.</i></div>');
-      add('<div id="of-end" class="of-card-full"><b>open-frame</b>' +
+      add('<div id="odf-end" class="odf-card-full"><b>open-design-frame</b>' +
           '<i>Design frames, written as components.</i>' +
-          '<code>github.com/simonliu-ai-product/open-frame</code>' +
+          '<code>github.com/simonliu-ai-product/open-design-frame</code>' +
           '<em>MIT · clone it and pnpm dev</em></div>');
     };
     if (document.body) mount();
@@ -148,9 +148,9 @@ const run = async () => {
     );
 
   const cap = async (text) => {
-    await page.waitForSelector('#of-cap span', { state: 'attached', timeout: 5000 });
+    await page.waitForSelector('#odf-cap span', { state: 'attached', timeout: 5000 });
     await page.evaluate((t) => {
-      const el = document.querySelector('#of-cap span');
+      const el = document.querySelector('#odf-cap span');
       el.textContent = t;
       el.dataset.on = t ? '1' : '0';
     }, text);
@@ -164,7 +164,7 @@ const run = async () => {
     const y = Math.round(box.y + box.height / 2);
     await page.evaluate(
       ([px, py]) => {
-        const c = document.querySelector('#of-cursor');
+        const c = document.querySelector('#odf-cursor');
         c.dataset.on = '1';
         c.style.transform = `translate(${px}px, ${py}px)`;
       },
@@ -176,9 +176,9 @@ const run = async () => {
   };
 
   const press = async () => {
-    await set('#of-cursor', 'data-press', '1');
+    await set('#odf-cursor', 'data-press', '1');
     await beat(130);
-    await set('#of-cursor', 'data-press', null);
+    await set('#odf-cursor', 'data-press', null);
   };
 
   const clickOn = async (locator, opts) => {
@@ -189,12 +189,12 @@ const run = async () => {
 
   /* Cuts fade rather than snap: a hard cut between two dark pages reads as a glitch. */
   const reveal = async () => {
-    await page.waitForSelector('#of-veil', { state: 'attached' });
-    await set('#of-veil', 'data-off', '1');
+    await page.waitForSelector('#odf-veil', { state: 'attached' });
+    await set('#odf-veil', 'data-off', '1');
     await beat(300);
   };
   const hide = async () => {
-    await set('#of-veil', 'data-off', null);
+    await set('#odf-veil', 'data-off', null);
     await beat(290);
   };
   const goTo = async (url, ready) => {
@@ -212,10 +212,10 @@ const run = async () => {
    * The card comes up over the veil, not instead of it: fading both at once
    * would show the page ghosting through the title.
    */
-  await set('#of-start', 'data-on', '1');
+  await set('#odf-start', 'data-on', '1');
   await beat(2100);
-  await set('#of-start', 'data-on', null);
-  await set('#of-veil', 'data-off', '1');
+  await set('#odf-start', 'data-on', null);
+  await set('#odf-veil', 'data-off', '1');
   await beat(620);
   mark('opening card');
 
@@ -239,23 +239,23 @@ const run = async () => {
   mark('act 1: written and shown');
 
   const card = page
-    .locator('.of-card', { hasText: 'Release — v0.1' })
-    .locator('.of-card-open')
+    .locator('.odf-card', { hasText: 'Release — v0.1' })
+    .locator('.odf-card-open')
     .first();
   await clickOn(card);
-  await page.waitForSelector('.of-stage .of-frame');
+  await page.waitForSelector('.odf-stage .odf-frame');
   await cap('The canvas draws it at the size it ships at');
   await beat(1300);
   mark('act 2: opened');
 
   /* ================================ Act 2 — the page ================================ */
   await cap('Click anything on the canvas');
-  const headline = page.locator('.of-stage [data-ofr-layer="Headline"]');
+  const headline = page.locator('.odf-stage [data-odf-layer="Headline"]');
   await clickOn(headline, { settle: 440 });
   await beat(1150);
 
   await cap('Change a value and the canvas changes with it');
-  const slider = page.locator('.of-slider').first();
+  const slider = page.locator('.odf-slider').first();
   await pointerTo(slider, { settle: 300 });
   // Stepped rather than jumped: the point is watching it grow.
   for (const value of [66, 74, 82, 88, 92, 96]) {
@@ -269,31 +269,31 @@ const run = async () => {
   await beat(1050);
 
   await cap('Save writes it into the frame’s own source');
-  await clickOn(page.locator('.of-save'), { settle: 340 });
+  await clickOn(page.locator('.odf-save'), { settle: 340 });
   await beat(1400);
   mark('act 2: saved');
 
-  await goTo(`${BASE}/f/flow-web`, '.of-stage .of-frame');
+  await goTo(`${BASE}/f/flow-web`, '.odf-stage .odf-frame');
   await cap('Play it like a site — the links live in the frame');
-  await clickOn(page.locator('.of-btn', { hasText: 'Play' }), { settle: 380 });
-  await page.waitForSelector('.of-device');
+  await clickOn(page.locator('.odf-btn', { hasText: 'Play' }), { settle: 380 });
+  await page.waitForSelector('.odf-device');
   await beat(850);
-  await clickOn(page.locator('.of-device [data-ofr-to="Transactions · Desktop"]').first(), {
+  await clickOn(page.locator('.odf-device [data-odf-to="Transactions · Desktop"]').first(), {
     settle: 420,
   });
   await beat(800);
-  await clickOn(page.locator('.of-device [data-ofr-to="Savings · Desktop"]').first(), {
+  await clickOn(page.locator('.odf-device [data-odf-to="Savings · Desktop"]').first(), {
     settle: 380,
   });
   await beat(900);
   await page.keyboard.press('Escape');
   mark('act 2: play');
 
-  await goTo(`${BASE}/themes/aurora`, '.of-sheet');
+  await goTo(`${BASE}/themes/aurora`, '.odf-sheet');
   await cap('Every theme is a sheet, and a DESIGN.md');
   await beat(1500);
   await page.evaluate(() => {
-    document.querySelector('.of-home')?.scrollTo({ top: 800, behavior: 'smooth' });
+    document.querySelector('.odf-home')?.scrollTo({ top: 800, behavior: 'smooth' });
   });
   await beat(1900);
   mark('act 3: themes');
@@ -301,7 +301,7 @@ const run = async () => {
   /* ================================ Closing ================================ */
   await cap('');
   await beat(260);
-  await set('#of-end', 'data-on', '1');
+  await set('#odf-end', 'data-on', '1');
   await beat(3000);
   mark('end card');
 

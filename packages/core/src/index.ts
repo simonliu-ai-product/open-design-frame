@@ -17,4 +17,4 @@ export type {
   ThemeModule,
 } from './app/lib/sdk.ts';
 export { DEFAULT_SIZE, nameOf, SIZES, sizeLabel, sizeOf } from './app/lib/sdk.ts';
-export type { OpenFrameConfig } from './config.ts';
+export type { OpenDesignFrameConfig } from './config.ts';

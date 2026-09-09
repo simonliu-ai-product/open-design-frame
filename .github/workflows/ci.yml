@@ -33,7 +33,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @open-frame/core build
+      - run: pnpm --filter @open-design-frame/core build
       # pnpm, not npm: npm does not read pnpm's workspaces, and only pnpm
       # rewrites `workspace:*` into a real version on the way out.
       - run: cd packages/core && pnpm pack --pack-destination /tmp
@@ -42,11 +42,11 @@ jobs:
           mkdir -p /tmp/try/frames/hello && cd /tmp/try
           echo '{ "name": "try", "private": true, "type": "module" }' > package.json
           cat > frames/hello/index.tsx <<'EOF'
-          import { type Frame, Layer, SIZES } from '@open-frame/core';
+          import { type Frame, Layer, SIZES } from '@open-design-frame/core';
           const Hello: Frame = () => <Layer name="Page">It installs.</Layer>;
           Hello.size = SIZES.DESKTOP;
           export default [Hello];
           EOF
-          npm install --silent /tmp/open-frame-core-*.tgz
-          npx open-frame build
+          npm install --silent /tmp/open-design-frame-core-*.tgz
+          npx open-design-frame build
           test -f dist/index.html

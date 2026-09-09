@@ -1,4 +1,4 @@
-import { type Frame, type FrameMeta, Layer, SIZES } from '@open-frame/core';
+import { type Frame, type FrameMeta, Layer, SIZES } from '@open-design-frame/core';
 import type { CSSProperties } from 'react';
 import ember from '../../themes/ember';
 
@@ -6,7 +6,7 @@ export const meta: FrameMeta = { title: 'Ember — Onboarding' };
 
 export const design = ember;
 
-const MUTED: CSSProperties = { color: 'var(--ofr-muted)', fontSize: 'var(--ofr-size-body)' };
+const MUTED: CSSProperties = { color: 'var(--odf-muted)', fontSize: 'var(--odf-size-body)' };
 
 const Dot = ({ on }: { on?: boolean }) => (
   <span
@@ -14,7 +14,7 @@ const Dot = ({ on }: { on?: boolean }) => (
       width: on ? 22 : 7,
       height: 7,
       borderRadius: 99,
-      background: on ? 'var(--ofr-accent)' : 'var(--ofr-line)',
+      background: on ? 'var(--odf-accent)' : 'var(--odf-line)',
     }}
   />
 );
@@ -29,7 +29,7 @@ const Welcome: Frame = () => (
         name="Eyebrow"
         kind="text"
         as="span"
-        style={{ ...MUTED, letterSpacing: '0.22em', fontSize: 'var(--ofr-size-caption)' }}
+        style={{ ...MUTED, letterSpacing: '0.22em', fontSize: 'var(--odf-size-caption)' }}
       >
         EMBER
       </Layer>
@@ -40,8 +40,8 @@ const Welcome: Frame = () => (
         style={{
           display: 'block',
           marginTop: 22,
-          fontFamily: 'var(--ofr-font-display)',
-          fontSize: 'var(--ofr-size-hero)',
+          fontFamily: 'var(--odf-font-display)',
+          fontSize: 'var(--odf-size-hero)',
           lineHeight: 1.08,
           letterSpacing: '-0.02em',
         }}
@@ -61,11 +61,11 @@ const Welcome: Frame = () => (
       <Layer name="Actions" style={{ display: 'flex', gap: 12, marginTop: 34 }}>
         <span
           style={{
-            background: 'var(--ofr-accent)',
+            background: 'var(--odf-accent)',
             color: '#1a0f08',
             borderRadius: 999,
             padding: '11px 22px',
-            fontSize: 'var(--ofr-size-body)',
+            fontSize: 'var(--odf-size-body)',
             fontWeight: 500,
           }}
         >
@@ -73,11 +73,11 @@ const Welcome: Frame = () => (
         </span>
         <span
           style={{
-            border: '1px solid var(--ofr-line)',
+            border: '1px solid var(--odf-line)',
             borderRadius: 999,
             padding: '11px 22px',
-            fontSize: 'var(--ofr-size-body)',
-            color: 'var(--ofr-muted)',
+            fontSize: 'var(--odf-size-body)',
+            color: 'var(--odf-muted)',
           }}
         >
           I have an account
@@ -98,7 +98,7 @@ const Welcome: Frame = () => (
       kind="image"
       style={{
         background:
-          'radial-gradient(120% 90% at 70% 20%, rgba(255,122,77,.34), transparent 62%), var(--ofr-surface)',
+          'radial-gradient(120% 90% at 70% 20%, rgba(255,122,77,.34), transparent 62%), var(--odf-surface)',
         display: 'grid',
         placeItems: 'center',
       }}
@@ -108,7 +108,7 @@ const Welcome: Frame = () => (
           width: 260,
           height: 260,
           borderRadius: '46% 54% 38% 62% / 52% 40% 60% 48%',
-          background: 'linear-gradient(150deg, var(--ofr-accent), #8d3bff)',
+          background: 'linear-gradient(150deg, var(--odf-accent), #8d3bff)',
           filter: 'blur(0.2px)',
         }}
       />

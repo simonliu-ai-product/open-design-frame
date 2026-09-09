@@ -13,7 +13,7 @@ const MAX_UPLOAD = 25 * 1024 * 1024;
  */
 export function assetsPlugin(ctx: OpsContext): Plugin {
   return {
-    name: 'open-frame:assets',
+    name: 'open-design-frame:assets',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/__assets', (req, res, next) => {

@@ -104,13 +104,13 @@ export async function writeFrame(
 
 const STARTER = (
   title: string,
-) => `import { type Frame, type FrameMeta, Layer, SIZES } from '@open-frame/core';
+) => `import { type Frame, type FrameMeta, Layer, SIZES } from '@open-design-frame/core';
 
 export const meta: FrameMeta = { title: ${JSON.stringify(title)}, createdAt: '${new Date().toISOString().slice(0, 10)}' };
 
 const Screen: Frame = () => (
   <Layer name="Page" style={{ width: '100%', height: '100%', padding: 72 }}>
-    <Layer name="Title" kind="text" as="span" style={{ fontSize: 'var(--ofr-size-hero)' }}>
+    <Layer name="Title" kind="text" as="span" style={{ fontSize: 'var(--odf-size-hero)' }}>
       ${title}
     </Layer>
   </Layer>
@@ -190,7 +190,7 @@ export async function deleteFrame(ctx: OpsContext, frameId: string): Promise<{ o
 /**
  * One element's style or text, addressed by where it is written.
  *
- * The location comes from `data-of-loc` in the running page, so an agent that
+ * The location comes from `data-odf-loc` in the running page, so an agent that
  * can see the DOM edits exactly what a person would have clicked.
  */
 export async function editElement(

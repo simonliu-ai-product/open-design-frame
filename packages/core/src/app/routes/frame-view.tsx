@@ -1,4 +1,4 @@
-import { frameIds, loadFrame } from 'virtual:open-frame/frames';
+import { frameIds, loadFrame } from 'virtual:open-design-frame/frames';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CommentDock } from '../components/comment-dock.tsx';
@@ -316,28 +316,28 @@ export function FrameView() {
   }, [selected]);
 
   return (
-    <div className="of-shell">
-      <header className="of-topbar">
-        <div className="of-topbar-left">
-          <Link className="of-back" to="/" aria-label="All frames">
+    <div className="odf-shell">
+      <header className="odf-topbar">
+        <div className="odf-topbar-left">
+          <Link className="odf-back" to="/" aria-label="All frames">
             ‹
           </Link>
-          <span className="of-segment">
-            <span className="of-seg" aria-current="true">
+          <span className="odf-segment">
+            <span className="odf-seg" aria-current="true">
               Frames
             </span>
-            <Link className="of-seg" to={`/assets?scope=${frameFile}`}>
+            <Link className="odf-seg" to={`/assets?scope=${frameFile}`}>
               Assets
             </Link>
           </span>
         </div>
 
-        <div className="of-topbar-center">
-          <span className="of-title">{mod?.meta?.title ?? frameFile}</span>
+        <div className="odf-topbar-center">
+          <span className="odf-title">{mod?.meta?.title ?? frameFile}</span>
         </div>
 
-        <div className="of-topbar-right">
-          <div className="of-zoom">
+        <div className="odf-topbar-right">
+          <div className="odf-zoom">
             <button
               type="button"
               aria-label="Zoom out"
@@ -345,7 +345,7 @@ export function FrameView() {
             >
               −
             </button>
-            <button type="button" className="of-zoom-value" onClick={() => setZoom(undefined)}>
+            <button type="button" className="odf-zoom-value" onClick={() => setZoom(undefined)}>
               {Math.round(applied * 100)}%
             </button>
             <button
@@ -358,7 +358,7 @@ export function FrameView() {
           </div>
           <button
             type="button"
-            className="of-btn"
+            className="odf-btn"
             onClick={() => setPlaying(true)}
             disabled={frames.length === 0}
           >
@@ -366,7 +366,7 @@ export function FrameView() {
           </button>
           <button
             type="button"
-            className="of-btn"
+            className="odf-btn"
             aria-pressed={dock === 'inspect'}
             onClick={() => setDock((d) => (d === 'inspect' ? null : 'inspect'))}
           >
@@ -374,7 +374,7 @@ export function FrameView() {
           </button>
           <button
             type="button"
-            className="of-btn of-btn-primary"
+            className="odf-btn odf-btn-primary"
             aria-pressed={dock === 'export'}
             onClick={() => setDock((d) => (d === 'export' ? null : 'export'))}
           >
@@ -383,8 +383,8 @@ export function FrameView() {
         </div>
       </header>
 
-      <div className="of-body">
-        <aside className="of-side">
+      <div className="odf-body">
+        <aside className="odf-side">
           <FrameRail
             frames={frames}
             design={design}
@@ -397,13 +397,13 @@ export function FrameView() {
         </aside>
 
         <main
-          className="of-stage"
+          className="odf-stage"
           onPointerDown={(e) => {
             if (e.target === e.currentTarget) select(null);
           }}
         >
           {error ? (
-            <p className="of-error">{error}</p>
+            <p className="odf-error">{error}</p>
           ) : Current ? (
             <FrameCanvas
               size={size}
@@ -430,7 +430,7 @@ export function FrameView() {
         </main>
 
         {dock ? (
-          <aside className="of-dock">
+          <aside className="odf-dock">
             <InspectPanel
               mode={dock}
               design={design}
@@ -455,16 +455,16 @@ export function FrameView() {
       </div>
 
       {pending.size > 0 ? (
-        <div className="of-savebar">
-          <span className="of-savebar-count">
+        <div className="odf-savebar">
+          <span className="odf-savebar-count">
             {pending.size} {pending.size === 1 ? 'layer' : 'layers'} edited
           </span>
-          <button type="button" className="of-chip" onClick={() => window.location.reload()}>
+          <button type="button" className="odf-chip" onClick={() => window.location.reload()}>
             Discard
           </button>
           <button
             type="button"
-            className="of-primary of-save"
+            className="odf-primary odf-save"
             disabled={busy}
             onClick={() => void save()}
           >
@@ -489,12 +489,12 @@ export function FrameView() {
         />
       ) : null}
 
-      <footer className="of-statusbar">
-        <span className="of-status-left">
+      <footer className="odf-statusbar">
+        <span className="odf-status-left">
           <i aria-hidden="true">▦</i> {frameFile}
-          {selected ? <span className="of-status-sel">{labelOf(selected)}</span> : null}
+          {selected ? <span className="odf-status-sel">{labelOf(selected)}</span> : null}
         </span>
-        <span className="of-status-right">
+        <span className="odf-status-right">
           frame {frames.length === 0 ? 0 : index + 1}/{frames.length}
           {size.width ? ` · ${size.width}×${size.height}` : ''}
         </span>

@@ -50,10 +50,10 @@ export function Menu({ label, items, className }: MenuProps) {
   const shown = page ?? items;
 
   return (
-    <div className={className ? `of-menu ${className}` : 'of-menu'} ref={ref}>
+    <div className={className ? `odf-menu ${className}` : 'odf-menu'} ref={ref}>
       <button
         type="button"
-        className="of-menu-trigger"
+        className="odf-menu-trigger"
         aria-label={label}
         aria-expanded={open}
         onClick={(e) => {
@@ -65,9 +65,9 @@ export function Menu({ label, items, className }: MenuProps) {
         ⋯
       </button>
       {open ? (
-        <div className="of-menu-panel">
+        <div className="odf-menu-panel">
           {page ? (
-            <button type="button" className="of-menu-back" onClick={() => setPage(null)}>
+            <button type="button" className="odf-menu-back" onClick={() => setPage(null)}>
               ‹ Back
             </button>
           ) : null}
@@ -75,7 +75,7 @@ export function Menu({ label, items, className }: MenuProps) {
             <button
               key={item.key}
               type="button"
-              className={item.danger ? 'of-menu-item of-menu-danger' : 'of-menu-item'}
+              className={item.danger ? 'odf-menu-item odf-menu-danger' : 'odf-menu-item'}
               aria-current={item.current}
               onClick={(e) => {
                 e.preventDefault();

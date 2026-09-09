@@ -6,4 +6,4 @@
  * that into the viewer's bundle breaks the page — Babel reaches for `process`,
  * which a browser does not have.
  */
-export const LOC_ATTR = 'data-of-loc';
+export const LOC_ATTR = 'data-odf-loc';

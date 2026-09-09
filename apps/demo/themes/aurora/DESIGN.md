@@ -17,8 +17,8 @@
 | Surface | `#15151d` |
 | Line | `#24242f` |
 
-Use `--ofr-accent` for one thing per screen. Text is `--ofr-text` on
-`--ofr-bg`; secondary text is `--ofr-muted`.
+Use `--odf-accent` for one thing per screen. Text is `--odf-text` on
+`--odf-bg`; secondary text is `--odf-muted`.
 
 ## 3. Typography
 
@@ -39,7 +39,7 @@ Use `--ofr-accent` for one thing per screen. Text is `--ofr-text` on
 
 ## 5. Component styles
 
-- Corner radius: 14px (`--ofr-radius`)
+- Corner radius: 14px (`--odf-radius`)
 
 <!-- Buttons, cards, inputs: borders, padding, states. -->
 

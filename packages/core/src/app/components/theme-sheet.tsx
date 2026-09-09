@@ -39,12 +39,12 @@ const readable = (hex: string): string => {
 
 function Swatch({ name, value }: { name: string; value: string }) {
   return (
-    <div className="of-sheet-colour">
-      <div className="of-sheet-colour-head" style={{ background: value, color: readable(value) }}>
-        <b className="of-sheet-colour-name">{name}</b>
-        <code className="of-sheet-colour-hex">{value.toUpperCase()}</code>
+    <div className="odf-sheet-colour">
+      <div className="odf-sheet-colour-head" style={{ background: value, color: readable(value) }}>
+        <b className="odf-sheet-colour-name">{name}</b>
+        <code className="odf-sheet-colour-hex">{value.toUpperCase()}</code>
       </div>
-      <div className="of-sheet-ramp">
+      <div className="odf-sheet-ramp">
         {ramp(value).map((step) => (
           <i key={step} style={{ background: step }} title={step} />
         ))}
@@ -67,15 +67,15 @@ function Specimen({
   cap: number;
 }) {
   return (
-    <div className="of-sheet-card">
-      <span className="of-sheet-card-label">{label}</span>
+    <div className="odf-sheet-card">
+      <span className="odf-sheet-card-label">{label}</span>
       <span
-        className="of-sheet-aa"
+        className="odf-sheet-aa"
         style={{ fontFamily: family, fontSize: Math.min(size * 1.6, cap), fontWeight: weight }}
       >
         Aa
       </span>
-      <span className="of-sheet-card-foot">{size}px</span>
+      <span className="odf-sheet-card-foot">{size}px</span>
     </div>
   );
 }
@@ -123,15 +123,15 @@ export function ThemeSheet({ design, variant = 'full' }: ThemeSheetProps) {
   if (card) {
     return (
       <div
-        className="of-sheet of-sheet-mini"
+        className="odf-sheet odf-sheet-mini"
         style={{ background: palette.bg, color: palette.text }}
       >
-        <div className="of-sheet-col">
+        <div className="odf-sheet-col">
           {colours.map((c) => (
             <Swatch key={c.name} name={c.name} value={c.value} />
           ))}
         </div>
-        <div className="of-sheet-col">
+        <div className="odf-sheet-col">
           <Specimen
             label="Headline"
             family={fonts.display}
@@ -139,8 +139,8 @@ export function ThemeSheet({ design, variant = 'full' }: ThemeSheetProps) {
             weight={600}
             cap={46}
           />
-          <div className="of-sheet-card" style={surface}>
-            <span className="of-sheet-buttons">
+          <div className="odf-sheet-card" style={surface}>
+            <span className="odf-sheet-buttons">
               <span style={pill({ background: palette.accent, color: palette.bg })}>Primary</span>
               <span style={pill({ background: palette.line, color: palette.text })}>Secondary</span>
             </span>
@@ -151,14 +151,14 @@ export function ThemeSheet({ design, variant = 'full' }: ThemeSheetProps) {
   }
 
   return (
-    <div className="of-sheet" style={{ background: palette.bg, color: palette.text }}>
-      <div className="of-sheet-col">
+    <div className="odf-sheet" style={{ background: palette.bg, color: palette.text }}>
+      <div className="odf-sheet-col">
         {colours.map((c) => (
           <Swatch key={c.name} name={c.name} value={c.value} />
         ))}
       </div>
 
-      <div className="of-sheet-col">
+      <div className="odf-sheet-col">
         <Specimen
           label="Headline"
           family={fonts.display}
@@ -182,9 +182,9 @@ export function ThemeSheet({ design, variant = 'full' }: ThemeSheetProps) {
         />
       </div>
 
-      <div className="of-sheet-col">
-        <div className="of-sheet-card" style={surface}>
-          <span className="of-sheet-buttons">
+      <div className="odf-sheet-col">
+        <div className="odf-sheet-card" style={surface}>
+          <span className="odf-sheet-buttons">
             <span style={pill({ background: palette.accent, color: palette.bg })}>Primary</span>
             <span style={pill({ background: palette.line, color: palette.text })}>Secondary</span>
             <span style={pill({ background: palette.text, color: palette.bg })}>Inverted</span>
@@ -194,9 +194,9 @@ export function ThemeSheet({ design, variant = 'full' }: ThemeSheetProps) {
           </span>
         </div>
 
-        <div className="of-sheet-card" style={surface}>
+        <div className="odf-sheet-card" style={surface}>
           <span
-            className="of-sheet-field"
+            className="odf-sheet-field"
             style={{
               background: palette.bg,
               color: palette.muted,
@@ -208,8 +208,8 @@ export function ThemeSheet({ design, variant = 'full' }: ThemeSheetProps) {
           </span>
         </div>
 
-        <div className="of-sheet-card" style={surface}>
-          <span className="of-sheet-nav" style={{ background: palette.bg }}>
+        <div className="odf-sheet-card" style={surface}>
+          <span className="odf-sheet-nav" style={{ background: palette.bg }}>
             {['⌂', '⌕', '☺'].map((glyph, i) => (
               <i
                 key={glyph}
@@ -224,8 +224,8 @@ export function ThemeSheet({ design, variant = 'full' }: ThemeSheetProps) {
           </span>
         </div>
 
-        <div className="of-sheet-card" style={surface}>
-          <span className="of-sheet-rules">
+        <div className="odf-sheet-card" style={surface}>
+          <span className="odf-sheet-rules">
             {[1, 0.72, 0.44].map((width, i) => (
               <i
                 key={width}

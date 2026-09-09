@@ -1,4 +1,4 @@
-import { frameIds } from 'virtual:open-frame/frames';
+import { frameIds } from 'virtual:open-design-frame/frames';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { FoldersManifest } from '../lib/folders.ts';
@@ -65,10 +65,10 @@ export function Finder({ manifest, onClose }: FinderProps) {
   };
 
   return (
-    <div className="of-finder">
-      <div className="of-finder-box" ref={box}>
+    <div className="odf-finder">
+      <div className="odf-finder-box" ref={box}>
         <input
-          className="of-finder-input"
+          className="odf-finder-input"
           // biome-ignore lint/a11y/noAutofocus: the field is the whole point of the dialog
           autoFocus
           value={query}
@@ -91,20 +91,20 @@ export function Finder({ manifest, onClose }: FinderProps) {
             }
           }}
         />
-        <div className="of-finder-list">
+        <div className="odf-finder-list">
           {hits.length === 0 ? (
-            <p className="of-note">Nothing by that name.</p>
+            <p className="odf-note">Nothing by that name.</p>
           ) : (
             hits.map((hit, i) => (
               <button
                 key={hit.key}
                 type="button"
-                className="of-finder-hit"
+                className="odf-finder-hit"
                 aria-current={i === active}
                 onPointerEnter={() => setActive(i)}
                 onClick={() => go(hit)}
               >
-                <span className="of-finder-kind">{hit.kind}</span>
+                <span className="odf-finder-kind">{hit.kind}</span>
                 {hit.label}
               </button>
             ))

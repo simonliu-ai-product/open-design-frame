@@ -20,7 +20,7 @@ post-production pass.
 ## Remaking it
 
 ```bash
-open-frame dev --mcp                      # apps/demo, on :5274
+open-design-frame dev --mcp                      # apps/demo, on :5274
 pnpm add -D playwright                    # in a scratch folder, beside this script
 node record-intro.mjs                     # writes video/*.webm (~30s)
 ffmpeg -i video/*.webm \

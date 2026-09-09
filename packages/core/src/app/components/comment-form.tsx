@@ -40,10 +40,10 @@ export function CommentForm({ target, onAdd }: CommentFormProps) {
 
   return (
     <>
-      <div className="of-section-label">Leave a comment</div>
+      <div className="odf-section-label">Leave a comment</div>
       <textarea
         ref={field}
-        className="of-textarea"
+        className="odf-textarea"
         value={draft}
         placeholder="Describe a change for the agent…"
         onChange={(e) => setDraft(e.target.value)}
@@ -54,11 +54,11 @@ export function CommentForm({ target, onAdd }: CommentFormProps) {
           }
         }}
       />
-      <div className="of-comment-foot">
-        <span className="of-comment-hint">⌘/ to focus · ⌘↵ to add</span>
+      <div className="odf-comment-foot">
+        <span className="odf-comment-hint">⌘/ to focus · ⌘↵ to add</span>
         <button
           type="button"
-          className="of-primary of-comment-add"
+          className="odf-primary odf-comment-add"
           disabled={busy || draft.trim() === ''}
           onClick={() => void submit()}
         >

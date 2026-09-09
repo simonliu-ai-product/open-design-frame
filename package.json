@@ -1,5 +1,5 @@
 {
-  "name": "open-frame-monorepo",
+  "name": "open-design-frame-monorepo",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.17.0",
@@ -10,7 +10,7 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "test": "vitest run",
-    "core": "pnpm --filter @open-frame/core"
+    "core": "pnpm --filter @open-design-frame/core"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.7",
