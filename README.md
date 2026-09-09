@@ -9,6 +9,9 @@ it by rewriting the file you wrote.
 The third of a family: [open-doc](https://github.com/simonliu-ai-product/open-doc)
 is documents, open-slide is decks, open-frame is design surfaces.
 
+https://github.com/simonliu-ai-product/open-frame — 30 seconds of it working:
+[`media/intro.mp4`](media/intro.mp4).
+
 ## Getting started
 
 ```bash

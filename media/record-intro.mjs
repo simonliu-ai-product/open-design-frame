@@ -113,8 +113,8 @@ const OVERLAY = `
           '<i>Design frames, written as components.</i></div>');
       add('<div id="of-end" class="of-card-full"><b>open-frame</b>' +
           '<i>Design frames, written as components.</i>' +
-          '<code>pnpm install &nbsp;·&nbsp; pnpm dev</code>' +
-          '<em>MIT · take the whole project</em></div>');
+          '<code>github.com/simonliu-ai-product/open-frame</code>' +
+          '<em>MIT · clone it and pnpm dev</em></div>');
     };
     if (document.body) mount();
     else document.addEventListener('DOMContentLoaded', mount, { once: true });
