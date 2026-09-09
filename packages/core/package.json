@@ -1,0 +1,66 @@
+{
+  "name": "@open-frame/core",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "open-frame": "./bin.js"
+  },
+  "files": [
+    "dist",
+    "src/app",
+    "bin.js",
+    "env.d.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./vite": {
+      "types": "./dist/vite/index.d.ts",
+      "import": "./dist/vite/index.js"
+    },
+    "./ops": {
+      "types": "./dist/ops/index.d.ts",
+      "import": "./dist/ops/index.js"
+    },
+    "./env": {
+      "types": "./env.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.29.2",
+    "@babel/types": "^7.29.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "commander": "^15.0.0",
+    "fast-glob": "^3.3.2",
+    "fflate": "^0.8.3",
+    "html-to-image": "^1.11.13",
+    "marked": "^18.0.12",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.1",
+    "vite": "^5.4.10"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "tsdown": "^0.9.9",
+    "typescript": "^5.9.3"
+  },
+  "homepage": "https://github.com/simonliu-ai-product/open-frame",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonliu-ai-product/open-frame.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/simonliu-ai-product/open-frame/issues"
+  }
+}

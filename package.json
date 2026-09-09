@@ -1,0 +1,27 @@
+{
+  "name": "open-frame-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.17.0",
+  "scripts": {
+    "dev": "turbo run dev --filter=demo",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "test": "vitest run",
+    "core": "pnpm --filter @open-frame/core"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.7",
+    "turbo": "^2.10.10",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "rolldown"
+    ]
+  }
+}

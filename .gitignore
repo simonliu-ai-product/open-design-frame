@@ -1,0 +1,14 @@
+node_modules
+dist
+.turbo
+*.log
+
+# recording scratch, not the finished file
+media/video/
+.DS_Store
+apps/demo/dist
+
+# Frames kept locally while iterating; the demo ships one worked example.
+apps/demo/frames/flow-web/
+apps/demo/frames/flow-app/
+apps/demo/frames/ember-web/
