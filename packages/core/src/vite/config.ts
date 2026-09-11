@@ -121,6 +121,30 @@ export async function createViteConfig(opts: CreateViteConfigOptions): Promise<I
         'react-dom': path.dirname(require.resolve('react-dom/package.json')),
       },
     },
+    /*
+     * The viewer's own imports have to be pre-bundled by name.
+     *
+     * Vite finds what to optimise by crawling source from the root, and it
+     * never crawls inside `node_modules` — everything there is assumed to be a
+     * dependency already. In this repo that is invisible, because the root is
+     * `packages/core/src/app` and the crawl reaches it. Installed, the same
+     * files sit under `node_modules/.pnpm/.../core/src/app`, the crawl skips
+     * them, and `react-router-dom` is served raw: it reaches for `cookie`,
+     * which is CommonJS, and the page dies on a missing named export before
+     * React mounts. Naming the entry and the deps makes the two cases the same.
+     */
+    optimizeDeps: {
+      entries: [path.join(APP_ROOT, 'main.tsx')],
+      include: [
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react-router-dom',
+        'fflate',
+        'html-to-image',
+        'marked',
+      ],
+    },
     server: {
       port: config.port ?? 5274,
       ...(config.allowedHosts !== undefined ? { allowedHosts: config.allowedHosts } : {}),

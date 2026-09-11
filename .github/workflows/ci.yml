@@ -50,3 +50,23 @@ jobs:
           npm install --silent /tmp/open-design-frame-core-*.tgz
           npx open-design-frame build
           test -f dist/index.html
+
+      # `build` goes through Rollup and never asks Vite's dependency optimizer
+      # anything, so it cannot see the one thing that only breaks once the
+      # viewer's source is inside node_modules. Opening the dev server can.
+      - name: Serve that frame and check the viewer mounts
+        run: |
+          cd /tmp/try
+          npx open-design-frame dev > /tmp/dev.log 2>&1 &
+          for _ in $(seq 1 40); do
+            curl -sf -o /dev/null http://localhost:5274/ && break
+            sleep 1
+          done
+          google-chrome --headless=new --disable-gpu --no-sandbox \
+            --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-profile \
+            about:blank > /dev/null 2>&1 &
+          node "$GITHUB_WORKSPACE/.github/scripts/dev-smoke.mjs" http://localhost:5274/ 9222
+
+      - name: The dev server's log, if that failed
+        if: failure()
+        run: cat /tmp/dev.log
