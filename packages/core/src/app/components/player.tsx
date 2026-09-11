@@ -18,6 +18,19 @@ const isHandheld = (width: number): boolean => width < 700;
 const CHROME_HEIGHT = 84;
 const PHONE_BEZEL = 14;
 
+/*
+ * A frame taller than a window is a page, not a screen.
+ *
+ * Fitting the whole of a 1440×3800 marketing page into the stage shrinks it to
+ * a ribbon nobody can read, and it answers the wrong question: what that design
+ * has to be judged on is how it arrives a screenful at a time. So the shell is
+ * sized like a window, the frame keeps its own height inside it, and the page
+ * scrolls — the same thing the browser would do with it.
+ */
+const MIN_VIEWPORT = 360;
+/** A phone's window does not grow with the display it is being shown on. */
+const PHONE_VIEWPORT = 844;
+
 /** `Transactions · Desktop` → the frame with that name, or its url, or its number. */
 function targetOf(frames: Frame[], to: string): number {
   const wanted = to.trim().toLowerCase();
@@ -44,15 +57,19 @@ export function Player({ frames, design, index, title, onIndex, onClose }: Playe
   const size = frame ? sizeOf(frame) : { width: 0, height: 0 };
   const handheld = isHandheld(size.width);
   const deviceWidth = handheld ? size.width + PHONE_BEZEL * 2 : size.width;
-  const deviceHeight = handheld ? size.height + PHONE_BEZEL * 2 : size.height + CHROME_HEIGHT;
+  const chromeHeight = handheld ? PHONE_BEZEL * 2 : CHROME_HEIGHT;
+  const frameHeight = size.height;
 
   const [scale, setScale] = useState(1);
+  const [viewport, setViewport] = useState(frameHeight);
+  const deviceHeight = viewport + chromeHeight;
   const [hinting, setHinting] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [full, setFull] = useState(false);
   const [fullError, setFullError] = useState<string | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const Current = frame;
 
   useLayoutEffect(() => {
@@ -61,8 +78,19 @@ export function Player({ frames, design, index, title, onIndex, onClose }: Playe
     const measure = () => {
       const { width, height } = el.getBoundingClientRect();
       if (width === 0 || height === 0) return;
+      /*
+       * Width decides the scale, height decides how much of the page is in
+       * view. Letting height into the scale is what turned a tall page into a
+       * ribbon; it only gets a say again when the window would not otherwise
+       * fit at its floor.
+       */
       // Never past 1: a 1440 frame blown up on a 4K display is not what ships.
-      setScale(Math.min(1, width / deviceWidth, height / deviceHeight));
+      const fit = Math.min(1, width / deviceWidth);
+      const room = height / fit - chromeHeight;
+      const cap = handheld ? PHONE_VIEWPORT : Number.POSITIVE_INFINITY;
+      const port = Math.max(MIN_VIEWPORT, Math.min(frameHeight, room, cap));
+      setViewport(port);
+      setScale(Math.min(fit, height / (port + chromeHeight)));
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -74,7 +102,7 @@ export function Player({ frames, design, index, title, onIndex, onClose }: Playe
       ro.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [deviceWidth, deviceHeight]);
+  }, [deviceWidth, chromeHeight, frameHeight, handheld]);
 
   /*
    * Fullscreen is the point of playing: the frame is drawn at the size it was
@@ -165,7 +193,11 @@ export function Player({ frames, design, index, title, onIndex, onClose }: Playe
                   <span className="odf-phone-notch" />
                   <div
                     className="odf-phone-screen"
-                    style={{ width: size.width, height: size.height }}
+                    /* Keyed by the frame: a fresh scrollport starts at the top,
+                       which is where a navigation lands. */
+                    key={index}
+                    ref={pageRef}
+                    style={{ width: size.width, height: viewport }}
                   >
                     <FramePlate design={design} size={size} Current={Current} />
                   </div>
@@ -199,7 +231,9 @@ export function Player({ frames, design, index, title, onIndex, onClose }: Playe
                   </div>
                   <div
                     className="odf-browser-page"
-                    style={{ width: size.width, height: size.height }}
+                    key={index}
+                    ref={pageRef}
+                    style={{ width: size.width, height: viewport }}
                   >
                     <FramePlate design={design} size={size} Current={Current} />
                   </div>

@@ -1597,7 +1597,11 @@ code {
   font-size: 9px;
 }
 .odf-browser-page {
-  overflow: hidden;
+  /* The page is taller than the window it is read through, so this is the
+     scrollport. Horizontal never scrolls: a frame is exactly as wide as it
+     says it is. */
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #fff;
 }
 .odf-phone {
@@ -1633,7 +1637,8 @@ code {
   z-index: 2;
 }
 .odf-phone-screen {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   border-radius: 40px;
   background: #fff;
 }
