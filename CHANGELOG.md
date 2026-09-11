@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.1
+
+- **`dev` works from an installed package.** Vite finds what to pre-bundle by
+  crawling source from the root and never crawls `node_modules`. In this repo
+  the viewer's root is `packages/core/src/app` and the crawl reached it; from a
+  real install the same files sit under `node_modules/…/core/src/app`, the
+  crawl skipped them, and `react-router-dom` was served unbundled — its
+  CommonJS `cookie` dependency failed a named import and the page was blank
+  before React mounted. `optimizeDeps` now names the entry and the deps, so
+  both layouts behave the same. `build` was never affected, which is why CI did
+  not catch it; the packaged job now opens the dev server and checks the viewer
+  mounts.
+- **Play scrolls a tall frame instead of shrinking it.** A 1440×3800 page was
+  being fitted whole into the stage and arrived as an unreadable ribbon. Width
+  now decides the scale and height decides how much of the page is in view: the
+  shell is sized like a window, the frame keeps its own height inside it, and
+  the page scrolls. A phone's window is capped so it does not grow with the
+  display. Following a link lands at the top of the page it goes to.
+
 ## 0.1.0
 
 First release.
