@@ -1,5 +1,5 @@
 import { parse as babelParse } from '@babel/parser';
-import type * as t from '@babel/types';
+import * as t from '@babel/types';
 
 export function parseSource(code: string): t.File | null {
   try {
@@ -7,6 +7,25 @@ export function parseSource(code: string): t.File | null {
   } catch {
     return null;
   }
+}
+
+export function parseStrict(code: string): t.File | null {
+  try {
+    return babelParse(code, {
+      sourceType: 'module',
+      plugins: ['typescript', 'jsx'],
+      errorRecovery: false,
+    });
+  } catch {
+    return null;
+  }
+}
+
+const FORWARDING = new Set(['Layer']);
+
+export function isTaggableOpening(opening: t.JSXOpeningElement): boolean {
+  const { name } = opening;
+  return t.isJSXIdentifier(name) && (/^[a-z]/.test(name.name) || FORWARDING.has(name.name));
 }
 
 export function walk(node: unknown, visit: (node: t.Node) => void): void {

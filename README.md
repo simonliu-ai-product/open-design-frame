@@ -40,7 +40,7 @@ Design tools keep the design and the code in two places, and the two drift. Hand
 
 <sub>Click an element on the canvas; the inspector fills with what the browser actually resolved, and Save writes it back into the TSX.</sub>
 
-Click anything — not just what you wrapped in a `<Layer>`. Changing a value applies to the canvas immediately *and* stages it; Save rewrites the frame's own source. An element styled from a shared constant is refused with the reason, because changing that constant would restyle everything else using it.
+Click anything — not just what you wrapped in a `<Layer>`. Changing a value applies to the canvas immediately *and* stages it; Save rewrites the frame's own source. An element styled from a shared constant (`style={CARD}`) shows its origin in the inspector and spreads an inline override (`style={{ ...CARD, padding: 32 }}`) without touching the constant itself.
 
 ### ▶️ Play it like a site
 
@@ -72,7 +72,7 @@ Export writes a single zip with a folder per format: HTML that opens on its own 
 
 ### 🔌 An MCP server, so any agent framework can drive it
 
-`open-design-frame dev --mcp` mounts an MCP endpoint next to the canvas — 25 tools covering frames, one element at a time, comments, folders, themes, design documents, and assets. It is stateless Streamable HTTP, so a client just points at `http://localhost:5274/mcp` with no session handshake.
+`open-design-frame dev --mcp` mounts an MCP endpoint next to the canvas — 32 tools covering frames, the active browser selection, templates, static diagnostics, git diff hunks, one element at a time, comments, folders, themes, design documents, and assets. It is stateless Streamable HTTP, so a client just points at `http://localhost:5274/mcp` with no session handshake.
 
 The tools and the browser share one implementation, so `write_frame` takes the revision you last read and refuses a stale write with `409` rather than overwriting whoever got there first. See [packages/mcp](packages/mcp).
 
@@ -99,8 +99,15 @@ Open http://localhost:5274. From there, drive it through your agent — or edit 
 
 | Command | What it does |
 | --- | --- |
+| `open-design-frame init [dir]` | Scaffold a workspace with a starter frame, `CLAUDE.md`, `AGENTS.md`, and agent skills |
 | `open-design-frame dev` | Canvas with hot reload (`--mcp` to mount the MCP endpoint, `--port`, `--host`) |
 | `open-design-frame build` | Static site into `dist/` (`--out-dir` to change it) |
+| `open-design-frame preview` | Serve the static site in `dist/` |
+| `open-design-frame templates` | List built-in frame templates (`--json`) |
+| `open-design-frame new <id>` | Create `frames/<id>` (`--template <id>`, `--title <title>`) |
+| `open-design-frame check [frame]` | Run static diagnostics on one or all frames (`--strict`, `--json`) |
+| `open-design-frame diff [frame]` | Inspect git diff hunks mapped to frame elements (`--since <rev>`, `--json`) |
+| `open-design-frame sync-skills` | Copy canonical agent skills into `.claude/skills` and `.agents/skills` |
 
 ## The file contract
 

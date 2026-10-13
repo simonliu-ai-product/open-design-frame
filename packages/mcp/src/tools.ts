@@ -2,9 +2,11 @@ import { Buffer } from 'node:buffer';
 import type { McpServer } from '@modelcontextprotocol/server';
 import {
   assignFrameToFolder,
+  checkFrames,
   createComment,
   createFolder,
   createFrame,
+  createFromTemplate,
   deleteAsset,
   deleteComment,
   deleteFolder,
@@ -14,16 +16,21 @@ import {
   listAssets,
   listComments,
   listFrames,
+  listRevisions,
+  listTemplates,
   listThemes,
   type OpsContext,
   OpsError,
   readAsset,
+  readChanges,
+  readCurrentFrame,
   readFolders,
   readFrame,
   readTheme,
   readThemeDoc,
   renameFolder,
   renameFrame,
+  revertChange,
   writeAsset,
   writeFrame,
   writeTheme,
@@ -77,6 +84,18 @@ export function registerTools(server: McpServer, ctx: OpsContext): void {
   );
 
   server.registerTool(
+    'current_frame',
+    {
+      title: 'Current frame',
+      description:
+        'Which frame file, artboard index, view mode, and selected element the user is ' +
+        'currently looking at in the browser.',
+      inputSchema: z.object({}),
+    },
+    () => run(() => readCurrentFrame(ctx)),
+  );
+
+  server.registerTool(
     'read_frame',
     {
       title: 'Read a frame',
@@ -120,6 +139,54 @@ export function registerTools(server: McpServer, ctx: OpsContext): void {
   );
 
   server.registerTool(
+    'list_templates',
+    {
+      title: 'List templates',
+      description:
+        'List built-in and workspace frame templates available for create_from_template.',
+      inputSchema: z.object({}),
+    },
+    () => run(() => listTemplates(ctx)),
+  );
+
+  server.registerTool(
+    'create_from_template',
+    {
+      title: 'Create a frame from a template',
+      description:
+        'Create frames/<id>/index.tsx from a named template (e.g. landing-page, mobile-app, ' +
+        'dashboard-ui, social-poster, blank).',
+      inputSchema: z.object({
+        template: z.string().describe('template name from list_templates'),
+        frameId: FRAME_ID.optional(),
+        title: z.string().optional(),
+      }),
+    },
+    ({ template, frameId, title }) =>
+      run(() =>
+        createFromTemplate(ctx, {
+          template,
+          ...(frameId !== undefined ? { frameId } : {}),
+          ...(title !== undefined ? { title } : {}),
+        }),
+      ),
+  );
+
+  server.registerTool(
+    'check_frames',
+    {
+      title: 'Check frames',
+      description:
+        'Validate frame files for syntax errors, unresolved <Layer to="…"> prototype links, ' +
+        'missing assets, and duplicate frame names.',
+      inputSchema: z.object({
+        ids: z.array(FRAME_ID).optional().describe('frame ids to check; omit to check all'),
+      }),
+    },
+    ({ ids }) => run(() => checkFrames(ctx, ids)),
+  );
+
+  server.registerTool(
     'rename_frame',
     {
       title: 'Rename a frame',
@@ -160,8 +227,8 @@ export function registerTools(server: McpServer, ctx: OpsContext): void {
       title: 'Edit one element',
       description:
         'Change the style or text of the element written at line:column — the location the ' +
-        'page reports in data-odf-loc. Refuses an element that takes its style from a shared ' +
-        'value, since changing that would restyle everything else using it.',
+        'page reports in data-odf-loc. Shared style constants (style={CARD}) are automatically ' +
+        'overridden by spreading (style={{ ...CARD, ... }}).',
       inputSchema: z.object({
         frameId: FRAME_ID,
         line: z.number().int().positive().describe('1-based line from data-odf-loc'),
@@ -184,12 +251,59 @@ export function registerTools(server: McpServer, ctx: OpsContext): void {
   );
 
   server.registerTool(
+    'read_changes',
+    {
+      title: 'Read git changes on a frame',
+      description:
+        'Diff the frame folder against a git revision (default HEAD) and map each hunk onto ' +
+        'the canvas elements it touches.',
+      inputSchema: z.object({
+        frameId: FRAME_ID,
+        since: z.string().optional().describe('git revision, defaults to HEAD'),
+      }),
+    },
+    ({ frameId, since }) => run(() => readChanges(ctx, frameId, since)),
+  );
+
+  server.registerTool(
+    'list_revisions',
+    {
+      title: 'List git revisions for a frame',
+      description: 'Recent commits that touched frames/<id>/.',
+      inputSchema: z.object({ frameId: FRAME_ID }),
+    },
+    ({ frameId }) => run(() => listRevisions(ctx, frameId)),
+  );
+
+  server.registerTool(
+    'revert_change',
+    {
+      title: 'Revert one diff hunk',
+      description: 'Take one hunk from read_changes back out of the working tree.',
+      inputSchema: z.object({
+        frameId: FRAME_ID,
+        since: z.string().optional(),
+        file: z.string(),
+        hunk: z.string(),
+      }),
+    },
+    ({ frameId, since, file, hunk }) =>
+      run(() =>
+        revertChange(ctx, frameId, {
+          ...(since !== undefined ? { since } : {}),
+          file,
+          hunk,
+        }),
+      ),
+  );
+
+  server.registerTool(
     'list_comments',
     {
       title: 'List comments',
       description:
         'The notes left on a frame, read from the JSX comments in its own source, with the ' +
-        'line each one sits on.',
+        'line and element loc each one sits on.',
       inputSchema: z.object({ frameId: FRAME_ID }),
     },
     ({ frameId }) => run(() => listComments(ctx, frameId)),

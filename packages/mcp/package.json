@@ -1,6 +1,6 @@
 {
   "name": "@open-design-frame/mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server for open-design-frame \u2014 lets any agent list, read, edit, comment on and file design frames over Streamable HTTP.",
   "type": "module",
   "exports": {
@@ -35,7 +35,7 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@open-design-frame/core": "^0.1.0"
+    "@open-design-frame/core": "^0.2.0"
   },
   "devDependencies": {
     "@open-design-frame/core": "workspace:*",

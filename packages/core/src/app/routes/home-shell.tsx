@@ -1,3 +1,4 @@
+import { version } from 'virtual:open-design-frame/config';
 import { frameIds } from 'virtual:open-design-frame/frames';
 import { themeIds } from 'virtual:open-design-frame/themes';
 import { useEffect, useMemo, useState } from 'react';
@@ -9,12 +10,14 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { Finder } from '../components/finder.tsx';
+import { LanguageMenu } from '../components/language-menu.tsx';
 import { Menu } from '../components/menu.tsx';
 import type { Asset } from '../lib/assets.ts';
 import { fetchAssets } from '../lib/assets.ts';
 import { useChromeTheme } from '../lib/chrome-theme.ts';
 import type { FoldersManifest } from '../lib/folders.ts';
 import { useFolders } from '../lib/folders.ts';
+import { useT } from '../lib/i18n.tsx';
 
 export const UNFILED = 'Unfiled';
 
@@ -34,10 +37,6 @@ export function useHome(): HomeContext {
 
 /**
  * One sidebar for every page that is not a canvas.
- *
- * Frames, themes and assets are three views of one project, so the nav that
- * counts them belongs above all three rather than being drawn again per page
- * with its own idea of what is selected.
  */
 export function HomeShell() {
   const { manifest, error, editable, create, rename, remove, assign } = useFolders();
@@ -48,6 +47,7 @@ export function HomeShell() {
   const [assetTick, setAssetTick] = useState(0);
   const [finding, setFinding] = useState(false);
   const [theme, toggleTheme] = useChromeTheme();
+  const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
   const [params] = useSearchParams();
@@ -121,8 +121,8 @@ export function HomeShell() {
           <button
             type="button"
             className="odf-nav-icon"
-            aria-label="Search"
-            title="Search (⌘K)"
+            aria-label={t('nav.search')}
+            title={t('nav.searchShortcut')}
             onClick={() => setFinding(true)}
           >
             <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
@@ -130,12 +130,13 @@ export function HomeShell() {
               <path d="M10.4 10.4 14 14" stroke="currentColor" strokeWidth="1.4" fill="none" />
             </svg>
           </button>
+          <LanguageMenu />
           <button
             type="button"
             className="odf-nav-icon"
-            aria-label={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+            aria-label={theme === 'dark' ? t('nav.lightChrome') : t('nav.darkChrome')}
             aria-pressed={theme === 'light'}
-            title={theme === 'dark' ? 'Light chrome' : 'Dark chrome'}
+            title={theme === 'dark' ? t('nav.lightChrome') : t('nav.darkChrome')}
             onClick={toggleTheme}
           >
             {theme === 'dark' ? (
@@ -168,7 +169,7 @@ export function HomeShell() {
             aria-current={onFrames && folderFilter === null}
             onClick={() => go('/')}
           >
-            <i>▦</i> All frames <b>{pad(frameIds.length)}</b>
+            <i>▦</i> {t('nav.allFrames')} <b>{pad(frameIds.length)}</b>
           </button>
           <button
             type="button"
@@ -176,7 +177,7 @@ export function HomeShell() {
             aria-current={location.pathname === '/themes'}
             onClick={() => go('/themes')}
           >
-            <i>◍</i> Themes <b>{pad(themeIds.length)}</b>
+            <i>◍</i> {t('nav.themes')} <b>{pad(themeIds.length)}</b>
           </button>
           <button
             type="button"
@@ -184,11 +185,11 @@ export function HomeShell() {
             aria-current={location.pathname === '/assets'}
             onClick={() => go('/assets')}
           >
-            <i>▤</i> Assets <b>{pad(assets.length)}</b>
+            <i>▤</i> {t('nav.assets')} <b>{pad(assets.length)}</b>
           </button>
         </nav>
 
-        <div className="odf-nav-label">Folders</div>
+        <div className="odf-nav-label">{t('nav.folders')}</div>
         <nav className="odf-nav-list">
           <button
             type="button"
@@ -196,7 +197,7 @@ export function HomeShell() {
             aria-current={onFrames && folderFilter === 'unfiled'}
             onClick={() => go('/?f=unfiled')}
           >
-            <i>▢</i> {UNFILED} <b>{pad(counts.unfiled)}</b>
+            <i>▢</i> {t('nav.unfiled')} <b>{pad(counts.unfiled)}</b>
           </button>
 
           {manifest.folders.map((folder) =>
@@ -207,7 +208,7 @@ export function HomeShell() {
                 // biome-ignore lint/a11y/noAutofocus: the field replaces the row the user just chose
                 autoFocus
                 defaultValue={folder.name}
-                aria-label="Folder name"
+                aria-label={t('nav.folderName')}
                 onBlur={(e) => {
                   void rename(folder.id, e.target.value);
                   setRenaming(null);
@@ -233,16 +234,16 @@ export function HomeShell() {
                     items={[
                       {
                         key: 'rename',
-                        label: 'Rename',
+                        label: t('home.rename'),
                         icon: '✎',
                         onSelect: () => setRenaming(folder.id),
                       },
                       {
                         key: 'delete',
-                        label: 'Delete',
+                        label: t('home.delete'),
                         icon: '␡',
                         danger: true,
-                        confirmLabel: 'Delete folder?',
+                        confirmLabel: t('home.deleteFolderConfirm'),
                         onSelect: () => {
                           if (folderFilter === folder.id) go('/');
                           void remove(folder.id);
@@ -261,8 +262,8 @@ export function HomeShell() {
               // biome-ignore lint/a11y/noAutofocus: the field is what New folder just opened
               autoFocus
               value={draft}
-              placeholder="Folder name"
-              aria-label="New folder name"
+              placeholder={t('nav.folderName')}
+              aria-label={t('nav.folderName')}
               onChange={(e) => setDraft(e.target.value)}
               onBlur={() => void submitNewFolder()}
               onKeyDown={(e) => {
@@ -279,7 +280,7 @@ export function HomeShell() {
                 setDraft('');
               }}
             >
-              <i>＋</i> New folder
+              <i>＋</i> {t('nav.newFolder')}
             </button>
           ) : null}
         </nav>
@@ -287,7 +288,7 @@ export function HomeShell() {
         {error ? <p className="odf-error odf-error-inline">{error}</p> : null}
         <span className="odf-nav-spacer" />
         <div className="odf-nav-foot">
-          <i className="odf-dot" /> v0.1.0
+          <i className="odf-dot" /> v{version}
         </div>
       </aside>
 

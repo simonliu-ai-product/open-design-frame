@@ -13,7 +13,14 @@ import { parseSource, walk } from './babel-walk.ts';
 const MARKER_RE =
   /\{\/\*\s*@frame-comment\s+id="(c-[a-f0-9]+)"\s+ts="([^"]+)"\s+text="([A-Za-z0-9_-]+={0,2})"\s*\*\/\}/;
 
-export type FrameComment = { id: string; line: number; ts: string; note: string };
+export type FrameComment = {
+  id: string;
+  line: number;
+  ts: string;
+  note: string;
+  /** `line:col` of the JSX element holding this marker, matching `data-odf-loc`. */
+  loc?: string;
+};
 
 export type CommentResult =
   | { ok: true; source: string; id: string; line: number }
@@ -50,7 +57,24 @@ export function parseComments(source: string): FrameComment[] {
       // kinder than reporting half of one.
     }
   });
-  return out;
+  if (out.length === 0) return out;
+
+  const ast = parseSource(source);
+  if (!ast) return out;
+  const owner = new Map<string, string>();
+  walk(ast.program.body, (node) => {
+    if (!t.isJSXElement(node) || !node.loc) return;
+    for (const child of node.children) {
+      if (!t.isJSXExpressionContainer(child)) continue;
+      const slice = source.slice(child.start ?? 0, child.end ?? 0);
+      const id = /@frame-comment\s+id="(c-[a-f0-9]+)"/.exec(slice)?.[1];
+      if (id) owner.set(id, `${node.loc.start.line}:${node.loc.start.column}`);
+    }
+  });
+  return out.map((comment) => {
+    const loc = owner.get(comment.id);
+    return loc ? { ...comment, loc } : comment;
+  });
 }
 
 function markerRegexFor(id: string): RegExp {

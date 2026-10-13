@@ -37,6 +37,7 @@ export function Selection({ element, host, variant = 'selected' }: SelectionProp
   if (!box) return null;
   return (
     <div
+      data-odf-overlay="true"
       className={variant === 'hover' ? 'odf-selection odf-selection-hover' : 'odf-selection'}
       style={{ left: box.left, top: box.top, width: box.width, height: box.height }}
     />

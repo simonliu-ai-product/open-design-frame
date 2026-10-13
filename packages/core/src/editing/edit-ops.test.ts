@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applyEdit } from './edit-ops.ts';
+import { applyEdit, readStyleOrigins } from './edit-ops.ts';
 
 // Column is 0-based, line is 1-based — what the loc tag carries.
-const SOURCE = `const Frame = () => (
+const SOURCE = `const SHARED = { padding: 12, fontSize: 14 };
+const Frame = () => (
   <div style={{ padding: 20 }}>
     <span style={{ fontSize: 24, color: '#111' }}>Hello</span>
     <p>Plain</p>
@@ -11,9 +12,9 @@ const SOURCE = `const Frame = () => (
 );
 `;
 
-const SPAN = { line: 3, column: 4 };
-const P = { line: 4, column: 4 };
-const SHARED = { line: 5, column: 4 };
+const SPAN = { line: 4, column: 4 };
+const P = { line: 5, column: 4 };
+const SHARED = { line: 6, column: 4 };
 
 describe('style edits', () => {
   it('replaces a value that is already there', () => {
@@ -73,17 +74,29 @@ describe('style edits', () => {
   });
 
   /*
-   * `style={SHARED}` is one value used by many elements. Rewriting it would
-   * restyle all of them, which is not what dragging one slider means — so it is
-   * refused with the reason rather than applied to the wrong scope.
+   * `style={SHARED}` is overridden by spreading `SHARED` into an object on the
+   * element (`style={{ ...SHARED, fontSize: 10 }}`) rather than mutating the
+   * shared constant itself.
    */
-  it('refuses to edit a style that other elements share', () => {
+  it('overrides a shared style constant by spreading it', () => {
     const out = applyEdit(SOURCE, SHARED.line, SHARED.column, [
       { kind: 'set-style', key: 'fontSize', value: '10px' },
     ]);
-    expect(out.ok).toBe(false);
-    if (out.ok) return;
-    expect(out.error).toMatch(/shared value/);
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    expect(out.source).toContain('<b style={{ ...SHARED, fontSize: 10 }}>Shared</b>');
+    const second = applyEdit(out.source, SHARED.line, SHARED.column, [
+      { kind: 'set-style', key: 'fontSize', value: '16px' },
+    ]);
+    expect(second.ok).toBe(true);
+    if (!second.ok) return;
+    expect(second.source).toContain('<b style={{ ...SHARED, fontSize: 16 }}>Shared</b>');
+  });
+
+  it('reads style origins including properties inherited from a shared constant', () => {
+    const origins = readStyleOrigins(SOURCE, SHARED.line, SHARED.column);
+    expect(origins.padding).toEqual({ value: '12', from: 'SHARED' });
+    expect(origins.fontSize).toEqual({ value: '14', from: 'SHARED' });
   });
 });
 
@@ -102,7 +115,7 @@ describe('text edits', () => {
   });
 
   it('refuses an element whose children are not one run of text', () => {
-    const out = applyEdit(SOURCE, 2, 2, [{ kind: 'set-text', value: 'x' }]);
+    const out = applyEdit(SOURCE, 3, 2, [{ kind: 'set-text', value: 'x' }]);
     expect(out.ok).toBe(false);
   });
 });

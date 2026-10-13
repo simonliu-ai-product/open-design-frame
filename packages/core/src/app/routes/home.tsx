@@ -5,6 +5,7 @@ import { FrameCanvas } from '../components/frame-canvas.tsx';
 import { Menu, type MenuItem } from '../components/menu.tsx';
 import { mergeDesign } from '../lib/design.ts';
 import { deleteFrame, duplicateFrame, renameFrame } from '../lib/frames.ts';
+import { useT } from '../lib/i18n.tsx';
 import { type Frame, type FrameModule, nameOf, sizeOf } from '../lib/sdk.ts';
 import { UNFILED, useHome } from './home-shell.tsx';
 
@@ -14,13 +15,6 @@ type SortKey = 'newest' | 'name';
 const titleOf = (file: Loaded): string =>
   'error' in file ? file.id : (file.mod.meta?.title ?? file.id);
 
-/*
- * Every card is the same size, whatever shape the frame is.
- *
- * The cover is a fixed box and the frame is fitted inside it, so a phone next
- * to a desktop letterboxes rather than making its row taller — a grid whose
- * cells are each a different height is a list of frames sorted by nothing.
- */
 function Cover({ frame, design }: { frame: Frame; design: ReturnType<typeof mergeDesign> }) {
   const Component = frame;
   return (
@@ -39,6 +33,7 @@ export function Home() {
   const [renamingFrame, setRenamingFrame] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const { manifest, editable, assign, folderFilter } = useHome();
+  const t = useT();
 
   useEffect(() => {
     let cancelled = false;
@@ -64,9 +59,9 @@ export function Home() {
 
   const viewName =
     folderFilter === null
-      ? 'Frames'
+      ? t('home.frames')
       : folderFilter === 'unfiled'
-        ? UNFILED
+        ? t('nav.unfiled')
         : (manifest.folders.find((f) => f.id === folderFilter)?.name ?? UNFILED);
 
   const shown = useMemo(() => {
@@ -80,8 +75,6 @@ export function Home() {
       matched = matched.filter((f) => manifest.assignments[f.id] === folderFilter);
     }
     if (sort === 'name') return [...matched].sort((a, b) => titleOf(a).localeCompare(titleOf(b)));
-    // Newest first, and a file with no timestamp sorts as old rather than as now
-    // — an unset field should not outrank one somebody actually set.
     const at = (f: Loaded) => ('error' in f ? 0 : Date.parse(f.mod.meta?.createdAt ?? '') || 0);
     return [...matched].sort((a, b) => at(b) - at(a));
   }, [files, query, sort, folderFilter, manifest]);
@@ -92,21 +85,21 @@ export function Home() {
   };
 
   const cardMenu = (id: string): MenuItem[] => [
-    { key: 'rename', label: 'Rename', icon: '✎', onSelect: () => setRenamingFrame(id) },
+    { key: 'rename', label: t('home.rename'), icon: '✎', onSelect: () => setRenamingFrame(id) },
     {
       key: 'duplicate',
-      label: 'Duplicate',
+      label: t('home.duplicate'),
       icon: '⧉',
       onSelect: () => void run(duplicateFrame(id)),
     },
     {
       key: 'move',
-      label: 'Move to folder…',
+      label: t('home.moveToFolder'),
       icon: '⇥',
       submenu: [
         {
           key: 'unfiled',
-          label: UNFILED,
+          label: t('nav.unfiled'),
           current: manifest.assignments[id] === undefined,
           onSelect: () => void assign(id, null),
         },
@@ -120,7 +113,7 @@ export function Home() {
     },
     {
       key: 'delete',
-      label: 'Delete',
+      label: t('home.delete'),
       icon: '␡',
       danger: true,
       confirmLabel: `Delete frames/${id}?`,
@@ -138,8 +131,8 @@ export function Home() {
         <div className="odf-home-tools">
           <label className="odf-sort">
             <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
-              <option value="newest">Newest</option>
-              <option value="name">Name</option>
+              <option value="newest">{t('home.newest')}</option>
+              <option value="name">{t('home.name')}</option>
             </select>
           </label>
           <label className="odf-search">
@@ -149,7 +142,7 @@ export function Home() {
             <input
               type="search"
               value={query}
-              placeholder="Search frames"
+              placeholder={t('home.searchFrames')}
               onChange={(e) => setQuery(e.target.value)}
             />
           </label>
@@ -159,14 +152,9 @@ export function Home() {
       {failure ? <p className="odf-error odf-error-inline">{failure}</p> : null}
 
       {frameIds.length === 0 ? (
-        <p className="odf-empty">
-          No frames yet. Create <code>frames/&lt;id&gt;/index.tsx</code> and export an array of
-          frames from it.
-        </p>
+        <p className="odf-empty">{t('home.emptyNoFrames')}</p>
       ) : shown.length === 0 ? (
-        <p className="odf-empty">
-          Nothing in {viewName}. Move a frame here from the ⋯ menu on its card.
-        </p>
+        <p className="odf-empty">{t('home.emptyFolder', { name: viewName })}</p>
       ) : (
         <div className="odf-grid">
           {shown.map((file) => {
@@ -213,7 +201,8 @@ export function Home() {
                   <Link className="odf-card-open" to={`/f/${file.id}`}>
                     <span className="odf-card-name">{titleOf(file)}</span>
                     <span className="odf-card-meta">
-                      {nameOf(first, 0)} · {count} {count === 1 ? 'frame' : 'frames'}
+                      {nameOf(first, 0)} · {count}{' '}
+                      {count === 1 ? t('home.frameSingular') : t('home.framePlural')}
                     </span>
                   </Link>
                 )}

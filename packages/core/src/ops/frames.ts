@@ -1,7 +1,12 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { applyEdit, type EditOp } from '../editing/edit-ops.ts';
+import {
+  applyEdit,
+  type EditOp,
+  readStyleOrigins,
+  type StyleOriginMap,
+} from '../editing/edit-ops.ts';
 import {
   type FileSummary,
   nextCopyId,
@@ -185,6 +190,17 @@ export async function deleteFrame(ctx: OpsContext, frameId: string): Promise<{ o
   const manifest = await readFolders(ctx);
   if (manifest.assignments[frameId]) await assignFrameToFolder(ctx, frameId, null);
   return { ok: true };
+}
+
+export async function readElementStyle(
+  ctx: OpsContext,
+  frameId: string,
+  line: number,
+  column: number,
+): Promise<{ origins: StyleOriginMap }> {
+  const file = await frameFile(ctx, frameId);
+  const source = await fs.readFile(file, 'utf8');
+  return { origins: readStyleOrigins(source, line, column) };
 }
 
 /**

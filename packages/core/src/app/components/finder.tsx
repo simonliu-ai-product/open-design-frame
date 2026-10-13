@@ -1,52 +1,117 @@
 import { frameIds } from 'virtual:open-design-frame/frames';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useChromeTheme } from '../lib/chrome-theme.ts';
 import type { FoldersManifest } from '../lib/folders.ts';
+import { LOCALES, useLocale, useT } from '../lib/i18n.tsx';
+import { type Frame, nameOf } from '../lib/sdk.ts';
 import { themeName, useThemes } from '../lib/themes.ts';
 
-export type FinderProps = { manifest: FoldersManifest; onClose: () => void };
+export type FinderAction = {
+  key: string;
+  label: string;
+  run: () => void;
+};
 
-type Hit = { key: string; kind: string; label: string; to: string };
+export type FinderProps = {
+  manifest?: FoldersManifest;
+  artboards?: Frame[];
+  onSelectArtboard?: (index: number) => void;
+  actions?: FinderAction[];
+  onClose: () => void;
+};
+
+type Hit = {
+  key: string;
+  kind: string;
+  label: string;
+  to?: string;
+  run?: () => void;
+};
 
 /**
- * Jump to anything by name.
- *
- * Only what the viewer already knows is listed — the frame ids it discovered,
- * the themes it loaded, the folders on disk. Nothing here searches inside a
- * frame, and it does not pretend to: a result that cannot be opened is worse
- * than one that was never offered.
+ * Jump to anything by name or execute a canvas/chrome command (⌘K).
  */
-export function Finder({ manifest, onClose }: FinderProps) {
+export function Finder({
+  manifest,
+  artboards = [],
+  onSelectArtboard,
+  actions = [],
+  onClose,
+}: FinderProps) {
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const { themes } = useThemes();
+  const [, toggleTheme] = useChromeTheme();
+  const { locale, setLocale } = useLocale();
+  const t = useT();
   const navigate = useNavigate();
   const box = useRef<HTMLDivElement>(null);
 
   const hits = useMemo(() => {
     const all: Hit[] = [
-      ...frameIds.map((id) => ({ key: `f:${id}`, kind: 'Frame', label: id, to: `/f/${id}` })),
+      ...artboards.map((frame, i) => ({
+        key: `a:${i}`,
+        kind: t('finder.kindArtboard'),
+        label: `${String(i + 1).padStart(2, '0')} · ${nameOf(frame, i)}`,
+        run: () => onSelectArtboard?.(i),
+      })),
+      ...actions.map((act) => ({
+        key: `act:${act.key}`,
+        kind: t('finder.kindAction'),
+        label: act.label,
+        run: act.run,
+      })),
+      ...frameIds.map((id) => ({
+        key: `f:${id}`,
+        kind: t('finder.kindFrame'),
+        label: id,
+        to: `/f/${id}`,
+      })),
       ...themes.map((theme) => ({
         key: `t:${theme.id}`,
-        kind: 'Theme',
+        kind: t('finder.kindTheme'),
         label: themeName(theme),
         to: `/themes/${theme.id}`,
       })),
-      ...manifest.folders.map((folder) => ({
+      ...(manifest?.folders ?? []).map((folder) => ({
         key: `d:${folder.id}`,
-        kind: 'Folder',
+        kind: t('finder.kindFolder'),
         label: folder.name,
         to: `/?f=${encodeURIComponent(folder.id)}`,
       })),
-      { key: 'p:frames', kind: 'Page', label: 'All frames', to: '/' },
-      { key: 'p:themes', kind: 'Page', label: 'Themes', to: '/themes' },
-      { key: 'p:assets', kind: 'Page', label: 'Assets', to: '/assets' },
+      { key: 'p:frames', kind: t('finder.kindPage'), label: t('nav.allFrames'), to: '/' },
+      { key: 'p:themes', kind: t('finder.kindPage'), label: t('nav.themes'), to: '/themes' },
+      { key: 'p:assets', kind: t('finder.kindPage'), label: t('nav.assets'), to: '/assets' },
+      {
+        key: 'act:chrome-theme',
+        kind: t('finder.kindAction'),
+        label: t('finder.toggleChromeTheme'),
+        run: () => toggleTheme(),
+      },
+      ...LOCALES.filter((l) => l.code !== locale).map((l) => ({
+        key: `lang:${l.code}`,
+        kind: t('nav.language'),
+        label: `${t('nav.language')}: ${l.label}`,
+        run: () => setLocale(l.code),
+      })),
     ];
     const needle = query.trim().toLowerCase();
     return needle === ''
       ? all
       : all.filter((hit) => `${hit.label} ${hit.kind}`.toLowerCase().includes(needle));
-  }, [query, themes, manifest]);
+  }, [
+    query,
+    artboards,
+    actions,
+    themes,
+    manifest,
+    locale,
+    t,
+    onSelectArtboard,
+    toggleTheme,
+    setLocale,
+  ]);
 
   useEffect(() => setActive(0), []);
 
@@ -61,7 +126,8 @@ export function Finder({ manifest, onClose }: FinderProps) {
   const go = (hit: Hit | undefined) => {
     if (!hit) return;
     onClose();
-    navigate(hit.to);
+    if (hit.run) hit.run();
+    else if (hit.to) navigate(hit.to);
   };
 
   return (
@@ -72,8 +138,8 @@ export function Finder({ manifest, onClose }: FinderProps) {
           // biome-ignore lint/a11y/noAutofocus: the field is the whole point of the dialog
           autoFocus
           value={query}
-          placeholder="Go to a frame, theme or folder…"
-          aria-label="Search"
+          placeholder={t('finder.placeholder')}
+          aria-label={t('nav.search')}
           onChange={(e) => {
             setQuery(e.target.value);
             setActive(0);
@@ -93,7 +159,7 @@ export function Finder({ manifest, onClose }: FinderProps) {
         />
         <div className="odf-finder-list">
           {hits.length === 0 ? (
-            <p className="odf-note">Nothing by that name.</p>
+            <p className="odf-note">{t('finder.empty')}</p>
           ) : (
             hits.map((hit, i) => (
               <button

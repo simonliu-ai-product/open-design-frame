@@ -50,23 +50,41 @@ function literalFor(key: string, value: string): string {
   return quote(trimmed);
 }
 
-function styleObject(opening: t.JSXOpeningElement): t.ObjectExpression | null {
+function styleAttr(opening: t.JSXOpeningElement): {
+  attr: t.JSXAttribute | null;
+  obj: t.ObjectExpression | null;
+  sharedExpr: t.Expression | null;
+} {
   for (const attr of opening.attributes) {
     if (!t.isJSXAttribute(attr) || !t.isJSXIdentifier(attr.name) || attr.name.name !== 'style') {
       continue;
     }
     const value = attr.value;
-    if (t.isJSXExpressionContainer(value) && t.isObjectExpression(value.expression)) {
-      return value.expression;
+    if (t.isJSXExpressionContainer(value) && !t.isJSXEmptyExpression(value.expression)) {
+      if (t.isObjectExpression(value.expression)) {
+        return { attr, obj: value.expression, sharedExpr: null };
+      }
+      if (t.isIdentifier(value.expression) || t.isMemberExpression(value.expression)) {
+        return { attr, obj: null, sharedExpr: value.expression };
+      }
     }
-    return null;
+    return { attr, obj: null, sharedExpr: null };
   }
-  return null;
+  return { attr: null, obj: null, sharedExpr: null };
 }
 
+/**
+ * Only properties written after the last `...spread` belong to the element's own
+ * overrides; a property before a spread could be shadowed by it.
+ */
 function propertyNamed(obj: t.ObjectExpression, key: string): t.ObjectProperty | null {
-  for (const prop of obj.properties) {
-    if (!t.isObjectProperty(prop)) continue;
+  const lastSpread = obj.properties.reduce(
+    (at, prop, idx) => (t.isSpreadElement(prop) ? idx : at),
+    -1,
+  );
+  for (let i = obj.properties.length - 1; i > lastSpread; i--) {
+    const prop = obj.properties[i];
+    if (!prop || !t.isObjectProperty(prop)) continue;
     const name = t.isIdentifier(prop.key)
       ? prop.key.name
       : t.isStringLiteral(prop.key)
@@ -77,12 +95,77 @@ function propertyNamed(obj: t.ObjectExpression, key: string): t.ObjectProperty |
   return null;
 }
 
+function sharedObjectNamed(ast: t.File, name: string): t.ObjectExpression | null {
+  for (const stmt of ast.program.body) {
+    const decl = t.isExportNamedDeclaration(stmt) ? stmt.declaration : stmt;
+    if (!decl || !t.isVariableDeclaration(decl)) continue;
+    for (const d of decl.declarations) {
+      if (!t.isIdentifier(d.id) || d.id.name !== name || !d.init) continue;
+      let init: t.Expression = d.init;
+      while (
+        t.isTSAsExpression(init) ||
+        t.isTSSatisfiesExpression(init) ||
+        t.isParenthesizedExpression(init)
+      ) {
+        init = init.expression;
+      }
+      if (t.isObjectExpression(init)) return init;
+    }
+  }
+  return null;
+}
+
+export type StyleOriginMap = Record<string, { value: string; from?: string }>;
+
+/**
+ * Reads the style properties declared on the element at `line:column`, following
+ * top-level shared constants (`style={CARD}` or `style={{ ...CARD }}`) so the
+ * inspector can show `from CARD` beside inherited properties.
+ */
+export function readStyleOrigins(source: string, line: number, column: number): StyleOriginMap {
+  const ast = parseSource(source);
+  if (!ast) return {};
+  const element = elementAt(ast, line, column);
+  if (!element) return {};
+  const { obj, sharedExpr } = styleAttr(element.openingElement);
+  const out: StyleOriginMap = {};
+
+  const readObj = (target: t.ObjectExpression, from: string | undefined, depth: number) => {
+    for (const prop of target.properties) {
+      if (t.isSpreadElement(prop)) {
+        if (t.isIdentifier(prop.argument) && depth < 3) {
+          const shared = sharedObjectNamed(ast, prop.argument.name);
+          if (shared) readObj(shared, prop.argument.name, depth + 1);
+        }
+        continue;
+      }
+      if (!t.isObjectProperty(prop) || prop.computed) continue;
+      const name = t.isIdentifier(prop.key)
+        ? prop.key.name
+        : t.isStringLiteral(prop.key)
+          ? prop.key.value
+          : null;
+      if (!name) continue;
+      const valText = source.slice(prop.value.start ?? 0, prop.value.end ?? 0).trim();
+      out[camel(name)] = from ? { value: valText, from } : { value: valText };
+    }
+  };
+
+  if (obj) {
+    readObj(obj, undefined, 0);
+  } else if (sharedExpr && t.isIdentifier(sharedExpr)) {
+    const shared = sharedObjectNamed(ast, sharedExpr.name);
+    if (shared) readObj(shared, sharedExpr.name, 1);
+  }
+  return out;
+}
+
 /**
  * Style edits, written into the element's own `style` object.
  *
- * A frame that styles itself through a shared constant (`style={CARD}`) is left
- * alone: rewriting that constant would silently restyle every element using it,
- * which is not what dragging one slider means.
+ * A frame that styles itself through a shared constant (`style={CARD}`) is
+ * overridden by spreading that constant into a new object (`style={{ ...CARD, key: val }}`)
+ * rather than mutating `CARD` itself.
  */
 function styleSplices(
   source: string,
@@ -90,16 +173,27 @@ function styleSplices(
   ops: { key: string; value: string | null }[],
 ): Splice[] | { error: string } {
   const opening = element.openingElement;
-  const obj = styleObject(opening);
+  const { attr, obj, sharedExpr } = styleAttr(opening);
 
   if (!obj) {
-    const hasStyleAttr = opening.attributes.some(
-      (a) => t.isJSXAttribute(a) && t.isJSXIdentifier(a.name) && a.name.name === 'style',
-    );
-    if (hasStyleAttr) {
+    if (sharedExpr && attr?.value) {
+      const additions = ops
+        .filter((op) => op.value !== null)
+        .map((op) => `${camel(op.key)}: ${literalFor(camel(op.key), op.value as string)}`);
+      if (additions.length === 0) return [];
+      const exprText = source.slice(sharedExpr.start ?? 0, sharedExpr.end ?? 0);
+      return [
+        {
+          start: attr.value.start ?? 0,
+          end: attr.value.end ?? 0,
+          text: `{{ ...${exprText}, ${additions.join(', ')} }}`,
+        },
+      ];
+    }
+    if (attr) {
       return {
         error:
-          'this element takes its style from a shared value — edit that value, or give the element its own style object',
+          'this element takes its style from an expression — give the element a style object or identifier',
       };
     }
     const additions = ops

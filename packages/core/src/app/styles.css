@@ -57,7 +57,7 @@ body {
 
 .odf-topbar {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 16px;
   height: 52px;
@@ -69,18 +69,22 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 .odf-topbar-center {
   display: flex;
   align-items: baseline;
   gap: 12px;
   justify-self: center;
+  min-width: 0;
+  overflow: hidden;
 }
 .odf-topbar-right {
   display: flex;
   align-items: center;
   gap: 8px;
   justify-self: end;
+  flex-shrink: 0;
 }
 
 .odf-mark {
@@ -93,6 +97,9 @@ body {
   font-size: 13.5px;
   font-weight: 500;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .odf-counter {
   font-size: 11.5px;
@@ -111,11 +118,13 @@ body {
 }
 
 .odf-zoom {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   border: 1px solid var(--odf-ui-line);
   border-radius: 9px;
   overflow: hidden;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .odf-zoom button {
   border: 0;
@@ -124,6 +133,8 @@ body {
   font: inherit;
   font-size: 13px;
   padding: 5px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
 }
 .odf-zoom button:hover {
@@ -137,6 +148,8 @@ body {
 }
 
 .odf-btn {
+  display: inline-flex;
+  align-items: center;
   padding: 6px 12px;
   border: 1px solid var(--odf-ui-line);
   border-radius: 9px;
@@ -144,6 +157,8 @@ body {
   color: var(--odf-ui-soft);
   font: inherit;
   font-size: 12.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
 }
 .odf-btn:hover {
@@ -248,6 +263,23 @@ body {
 .odf-stage > .odf-canvas-box {
   position: absolute;
   inset: 40px;
+  /*
+   * A zoom past the box scrolls inside the stage instead of painting over the
+   * toolbar and the rail. The box keeps its size from `inset`, so the fit
+   * measurement is unaffected by what is in it — which is the whole reason the
+   * scroll can live here and not on the stage.
+   */
+  overflow: auto;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+/*
+ * Centred with auto margins rather than with `justify-content`, because a
+ * flex line centred by the container puts its overflow out of reach: the top
+ * and left of a zoomed-in frame could not be scrolled back to.
+ */
+.odf-stage > .odf-canvas-box > .odf-canvas-scaler {
+  margin: auto;
 }
 .odf-canvas-scaler {
   position: relative;
@@ -453,7 +485,7 @@ code {
 }
 
 .odf-nav {
-  width: 248px;
+  width: 256px;
   flex: none;
   display: flex;
   flex-direction: column;
@@ -464,13 +496,16 @@ code {
 .odf-nav-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 2px;
   margin-bottom: 24px;
 }
 .odf-nav-brand {
+  margin-right: auto;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.015em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .odf-nav-list {
   display: flex;
@@ -1158,6 +1193,7 @@ code {
   color: var(--odf-ui-faint);
   font: inherit;
   font-size: 12.5px;
+  white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
 }
@@ -1342,22 +1378,33 @@ code {
 .odf-comment-remove:hover {
   color: #ff8a8a;
 }
+/*
+ * Stacked, not side by side.
+ *
+ * The dock is 292px, which leaves 264px of content. The hint and a button
+ * reading "Add comment" measured 258px together — six pixels of room, and the
+ * first font metric that ran a little wide broke both of them onto two lines
+ * at once. A full-width primary button is also what the rest of this panel
+ * does; the row was the odd one out.
+ */
 .odf-comment-foot {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 10px 14px 18px;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 14px 18px;
 }
 .odf-comment-hint {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10.5px;
   color: var(--odf-ui-faint);
+  text-align: center;
 }
 .odf-comment-add {
-  width: auto;
+  width: 100%;
   margin: 0;
-  padding: 7px 14px;
+  padding: 8px 12px;
+  /* The label is two words; it never becomes four lines of one. */
+  white-space: nowrap;
 }
 
 /* The ⋯ on a row */
@@ -2041,11 +2088,6 @@ code {
 }
 
 /* Sidebar tools */
-.odf-nav-top {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
 .odf-nav-icon {
   display: grid;
   place-items: center;
@@ -2056,9 +2098,7 @@ code {
   background: none;
   color: var(--odf-ui-faint);
   cursor: pointer;
-}
-.odf-nav-icon:first-of-type {
-  margin-left: auto;
+  flex-shrink: 0;
 }
 .odf-nav-icon:hover {
   background: rgba(127, 127, 137, 0.14);
@@ -2158,6 +2198,351 @@ code {
 }
 .odf-panel-tabs .odf-seg {
   flex: 1;
-  padding: 6px 12px;
+  padding: 6px 8px;
   text-align: center;
+}
+
+/* Language switcher */
+.odf-lang-select {
+  padding: 4px 6px;
+  border: 1px solid var(--odf-ui-line);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--odf-ui-soft);
+  font: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.odf-lang-select:hover {
+  color: var(--odf-ui-ink);
+  border-color: var(--odf-ui-soft);
+}
+.odf-lang-select option {
+  background: var(--odf-ui-panel);
+  color: var(--odf-ui-ink);
+}
+
+/* Shared style origin badges & clickable tokens */
+.odf-origin-badge {
+  font-size: 10.5px;
+  color: var(--odf-ui-accent);
+  border-color: rgba(124, 92, 255, 0.35);
+  background: rgba(124, 92, 255, 0.1);
+}
+.odf-origin-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 5px;
+  vertical-align: middle;
+  border-radius: 99px;
+  background: var(--odf-ui-accent);
+}
+.odf-swatch-btn {
+  padding: 4px 8px;
+  border: 1px solid var(--odf-ui-line);
+  border-radius: 7px;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.odf-swatch-btn:hover {
+  border-color: var(--odf-ui-accent);
+  color: var(--odf-ui-ink);
+}
+
+/* Live DOM diagnostics list */
+.odf-diag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+}
+.odf-diag-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 1px solid var(--odf-ui-line);
+  border-radius: 8px;
+  background: rgba(255, 180, 70, 0.06);
+  color: var(--odf-ui-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.odf-diag-item:hover {
+  border-color: #f5a623;
+}
+.odf-diag-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f5a623;
+}
+.odf-diag-msg {
+  font-size: 12px;
+  color: var(--odf-ui-soft);
+}
+
+/* Topbar badge */
+.odf-btn-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 99px;
+  background: rgba(245, 166, 35, 0.2);
+  color: #f5a623;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Canvas pins & diff overlays */
+.odf-canvas-pin {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: var(--odf-ui-accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.odf-canvas-pin:hover {
+  transform: scale(1.1);
+}
+.odf-diff-box {
+  position: absolute;
+  z-index: 3;
+  border: 0;
+  outline: 2px dashed #f5a623;
+  background: rgba(245, 166, 35, 0.1);
+  padding: 0;
+  cursor: pointer;
+}
+.odf-diff-box-active {
+  outline: 2px solid #f5a623;
+  background: rgba(245, 166, 35, 0.18);
+}
+.odf-diff-badge {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f5a623;
+  color: #141418;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Comment picking banner & actions */
+.odf-stage-picking {
+  cursor: crosshair;
+}
+.odf-comments-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.odf-comments-bubble-active {
+  border-color: var(--odf-ui-accent);
+  background: var(--odf-ui-accent);
+  color: #fff;
+}
+.odf-comment-picking-banner {
+  padding: 7px 12px;
+  border: 1px solid var(--odf-ui-accent);
+  border-radius: 9px;
+  background: var(--odf-ui-panel);
+  color: var(--odf-ui-ink);
+  font-size: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+.odf-comment {
+  cursor: pointer;
+}
+.odf-comment:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Changes (git diff) panel */
+.odf-hunk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.odf-hunk {
+  padding: 10px;
+  border: 1px solid var(--odf-ui-line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+}
+.odf-hunk:hover {
+  border-color: var(--odf-ui-soft);
+}
+.odf-hunk-active {
+  border-color: #f5a623;
+  background: rgba(245, 166, 35, 0.07);
+}
+.odf-hunk-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.odf-hunk-select {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.odf-hunk-summary {
+  font-size: 11.5px;
+  color: var(--odf-ui-soft);
+}
+.odf-hunk-revert {
+  padding: 2px 8px;
+  font-size: 11px;
+}
+.odf-hunk-desc {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--odf-ui-ink);
+}
+.odf-hunk-diff {
+  margin: 8px 0 0;
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.odf-diff-del {
+  color: #ff8a8a;
+  white-space: pre;
+}
+.odf-diff-add {
+  color: #6ee7b7;
+  white-space: pre;
+}
+
+/* Multi-frame view modes: Split & Storyboard Grid */
+.odf-storyboard-grid {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  align-content: start;
+}
+.odf-storyboard-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--odf-ui-line);
+  border-radius: 12px;
+  background: var(--odf-ui-panel);
+  color: var(--odf-ui-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.odf-storyboard-cell:hover {
+  border-color: var(--odf-ui-soft);
+}
+.odf-storyboard-cell[aria-current="true"] {
+  border-color: var(--odf-ui-accent);
+}
+.odf-storyboard-preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px solid var(--odf-ui-line);
+  background: var(--odf-ui-stage);
+}
+.odf-storyboard-preview .odf-canvas-box {
+  width: 100%;
+  height: 100%;
+}
+.odf-storyboard-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.odf-storyboard-caption b {
+  font-weight: 500;
+  color: var(--odf-ui-faint);
+  font-variant-numeric: tabular-nums;
+}
+.odf-storyboard-caption i {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--odf-ui-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.odf-split-stage {
+  position: absolute;
+  inset: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.odf-split-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--odf-ui-line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+}
+.odf-split-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--odf-ui-line);
+  background: var(--odf-ui-chrome);
+  font-size: 12px;
+  color: var(--odf-ui-soft);
+}
+.odf-split-canvas {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.odf-split-canvas > .odf-canvas-box {
+  position: absolute;
+  inset: 16px;
 }

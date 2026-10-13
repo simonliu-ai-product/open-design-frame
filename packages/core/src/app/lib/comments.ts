@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-export type FrameComment = { id: string; line: number; ts: string; note: string };
+export type FrameComment = { id: string; line: number; ts: string; note: string; loc?: string };
 
 /**
  * Notes on a frame, read from and written to its source file.

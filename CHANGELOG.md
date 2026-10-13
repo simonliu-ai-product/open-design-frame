@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.2.0
+
+- **Shared style constants can be overridden inline.** Selecting an element
+  styled with `style={CARD}` or `style={{ ...CARD, ... }}` now shows a
+  `from CARD` origin badge in the inspector and rewrites edits as inline spread
+  overrides (`style={{ ...CARD, padding: 32 }}`) instead of refusing them, so
+  one element can diverge without touching the shared constant.
+- **Clickable design token swatches and live DOM diagnostics.** Theme tokens in
+  the inspector apply `--odf-*` variables directly to the selected element, and
+  a new **Checks** tab reports clipped text, off-artboard elements, and empty
+  layers in real time.
+- **Changes (`git diff`) panel and canvas overlays.** In dev mode, a **Changes**
+  dock (`D`) diffs the active frame against `HEAD` or any recent commit,
+  highlights modified elements on the canvas with `Δ` badges, and lets you
+  revert individual hunks in place.
+- **Canvas comment pins and click-to-comment picking.** Comments pinned to a
+  source line render numbered `#1`, `#2` markers directly on the canvas; clicking
+  **＋ New comment** enters crosshair picking mode to drop a comment on any
+  element.
+- **Multi-frame view modes.** Frames with multiple artboards can be viewed in
+  **Single**, **Split** (two artboards side-by-side with independent pickers),
+  or **Storyboard Grid** mode.
+- **Five-locale UI and global Command Palette (`⌘K`).** Full UI localisation for
+  English, 繁體中文, 简体中文, 日本語, and 한국어, plus a global `⌘K` palette
+  that jumps to frames, artboards, themes, and folders or triggers view, dock,
+  theme, and language actions.
+- **Agent CLI, templates, skills, and 7 new MCP tools.** Added
+  `open-design-frame init`, `preview`, `templates`, `new`, `check`, `diff`, and
+  `sync-skills`, 5 built-in starter templates (`blank`, `landing-page`,
+  `mobile-app`, `dashboard-ui`, `social-poster`), 4 canonical agent skills,
+  active selection tracking (`/__current`), and 7 new MCP tools (`current_frame`,
+  `list_templates`, `create_from_template`, `check_frames`, `read_changes`,
+  `list_revisions`, `revert_change` — 32 tools in total).
+
 ## 0.1.1
 
 - **`dev` works from an installed package.** Vite finds what to pre-bundle by

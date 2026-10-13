@@ -20,7 +20,11 @@ and the canvas hot-reloads, so an agent and a person work on one workspace.
 | --- | --- |
 | `list_frames` `read_frame` `write_frame` | the frame files, with a revision — a stale write is refused with 409 |
 | `create_frame` `rename_frame` `duplicate_frame` `delete_frame` | the folders under `frames/` |
+| `current_frame` | the frame, artboard, and element currently selected in the browser |
+| `list_templates` `create_from_template` | built-in starter templates (`blank`, `landing-page`, `mobile-app`, `dashboard-ui`, `social-poster`) |
+| `check_frames` | static diagnostics across one or all frames (`parse-error`, `no-default-export`, `missing-size`, `hardcoded-color`, `missing-asset`) |
 | `edit_element` | one element's style or text, addressed by the `data-odf-loc` the page reports |
+| `read_changes` `list_revisions` `revert_change` | git diff hunks mapped to source lines, recent commits, and per-hunk revert |
 | `list_comments` `add_comment` `delete_comment` | notes written into the frame's own source |
 | `list_folders` `create_folder` `rename_folder` `delete_folder` `file_frame` | how the home page groups frames |
 | `list_themes` `read_theme` `write_theme` | the design systems in `themes/` |

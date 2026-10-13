@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
+import { LOC_ATTR } from '../../editing/loc.ts';
 import type { DesignSystem } from '../lib/design.ts';
+import { type DomDiagnostic, diagnoseFrameDom } from '../lib/diagnostics.ts';
+import { fetchStyleOrigins, locOf } from '../lib/editor.ts';
 import type { ExportFormat } from '../lib/export.ts';
+import { useT } from '../lib/i18n.tsx';
 import type { LayerKind, LayerNode } from '../lib/layers.ts';
 import type { FrameSize } from '../lib/sdk.ts';
 import type { CommentTarget } from './comment-dock.tsx';
@@ -185,13 +189,6 @@ function Field({ label, value, unit }: { label: string; value: string; unit?: st
   );
 }
 
-/**
- * A slider and a number that are the same value.
- *
- * The slider is for finding it and the box is for saying it; both write on
- * every change, because the canvas shows the result immediately and a preview
- * that lags behind the handle is worse than no slider.
- */
 function Range({
   label,
   value,
@@ -199,6 +196,7 @@ function Range({
   max,
   step,
   unit,
+  origin,
   onChange,
 }: {
   label: string;
@@ -207,11 +205,10 @@ function Range({
   max: number;
   step: number;
   unit?: string;
+  origin?: string | null;
   onChange: (next: number) => void;
 }) {
   const [draft, setDraft] = useState(String(value));
-  // The element changed under the panel: show what it says now, not the last
-  // thing typed into a field that belonged to something else.
   useEffect(() => setDraft(String(value)), [value]);
 
   const commit = (raw: string) => {
@@ -222,7 +219,10 @@ function Range({
 
   return (
     <div className="odf-field">
-      <span className="odf-field-label">{label}</span>
+      <span className="odf-field-label" title={origin ? `from ${origin}` : undefined}>
+        {label}
+        {origin ? <em className="odf-origin-dot" title={`from ${origin}`} /> : null}
+      </span>
       <input
         className="odf-slider"
         type="range"
@@ -254,10 +254,12 @@ function Range({
 function ColorField({
   label,
   value,
+  origin,
   onChange,
 }: {
   label: string;
   value: string;
+  origin?: string | null;
   onChange: (next: string) => void;
 }) {
   const [draft, setDraft] = useState(value);
@@ -265,7 +267,10 @@ function ColorField({
   const swatch = /^#[0-9a-f]{6}$/i.test(draft) ? draft : '#000000';
   return (
     <div className="odf-field">
-      <span className="odf-field-label">{label}</span>
+      <span className="odf-field-label" title={origin ? `from ${origin}` : undefined}>
+        {label}
+        {origin ? <em className="odf-origin-dot" title={`from ${origin}`} /> : null}
+      </span>
       <span className="odf-field-value odf-field-edit odf-color-field">
         <input
           type="color"
@@ -294,6 +299,8 @@ function ColorField({
 
 export type InspectPanelProps = {
   mode: 'inspect' | 'export';
+  frameId?: string | null;
+  host?: HTMLElement | null;
   design: DesignSystem;
   size: FrameSize;
   layers: LayerNode[];
@@ -302,6 +309,7 @@ export type InspectPanelProps = {
   revision: number;
   /** Where a note would go. Absent in a static build, which has nowhere to write it. */
   commentTarget: CommentTarget | null;
+  commentFocusTrigger?: number;
   onComment: ((line: number, column: number, note: string) => Promise<boolean>) | null;
   busy: boolean;
   status: string | null;
@@ -318,21 +326,32 @@ export type InspectPanelProps = {
 };
 
 export function InspectPanel(props: InspectPanelProps) {
-  const { mode, design, size, layers, selected, revision, onSelect } = props;
+  const {
+    mode,
+    frameId = null,
+    host = null,
+    design,
+    size,
+    layers,
+    selected,
+    revision,
+    onSelect,
+  } = props;
   const { busy, status, onExport, onClose, onStyle, onText } = props;
   const { frameCount, unsaved } = props;
-  const { commentTarget, onComment } = props;
+  const { commentTarget, commentFocusTrigger = 0, onComment } = props;
+  const t = useT();
   const [scale, setScale] = useState(2);
   const [scope, setScope] = useState<'frame' | 'file'>('file');
   const [formats, setFormats] = useState<ExportFormat[]>(['html', 'png']);
   const [measured, setMeasured] = useState<Measured | null>(null);
   const [text, setText] = useState('');
-  /*
-   * Two things share this panel: what the selected element is, and what there is
-   * to select. Stacked they made one column nobody could reach the bottom of;
-   * as tabs each is a page.
-   */
-  const [tab, setTab] = useState<'typography' | 'layers'>('typography');
+  const [origins, setOrigins] = useState<{
+    from: string | null;
+    properties: Record<string, string | null>;
+  } | null>(null);
+  const [diagnostics, setDiagnostics] = useState<DomDiagnostic[]>([]);
+  const [tab, setTab] = useState<'typography' | 'layers' | 'checks'>('typography');
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: a preview mutates the element in place, so the revision is the signal
   useEffect(() => {
@@ -340,12 +359,51 @@ export function InspectPanel(props: InspectPanelProps) {
     setText(selected?.textContent ?? '');
   }, [selected, revision]);
 
+  useEffect(() => {
+    if (!selected || !frameId) {
+      setOrigins(null);
+      return;
+    }
+    const loc = locOf(selected);
+    if (!loc) {
+      setOrigins(null);
+      return;
+    }
+    let cancelled = false;
+    void fetchStyleOrigins(frameId, loc).then((res) => {
+      if (!cancelled) setOrigins(res);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selected, frameId]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: revision and layers trigger re-diagnosing DOM
+  useEffect(() => {
+    if (!host || size.width <= 0) {
+      setDiagnostics([]);
+      return;
+    }
+    setDiagnostics(diagnoseFrameDom(host, size));
+  }, [host, size, revision, layers]);
+
+  useEffect(() => {
+    if (commentFocusTrigger > 0) {
+      setTab('typography');
+    }
+  }, [commentFocusTrigger]);
+
   return (
     <div className="odf-panel">
       <header className="odf-panel-head">
         <span className="odf-panel-title">
-          {mode === 'inspect' ? 'Inspect' : 'Export'}
+          {mode === 'inspect' ? t('inspect.title') : t('inspect.export')}
           {mode === 'inspect' && measured ? <code>&lt;{measured.tag}&gt;</code> : null}
+          {mode === 'inspect' && origins?.from ? (
+            <code className="odf-origin-badge">
+              {t('inspect.fromConst', { name: origins.from })}
+            </code>
+          ) : null}
         </span>
         <button type="button" className="odf-close" aria-label="Close" onClick={onClose}>
           ✕
@@ -362,7 +420,7 @@ export function InspectPanel(props: InspectPanelProps) {
                 aria-current={tab === 'typography'}
                 onClick={() => setTab('typography')}
               >
-                Typography
+                {t('inspect.typography')}
               </button>
               <button
                 type="button"
@@ -370,7 +428,16 @@ export function InspectPanel(props: InspectPanelProps) {
                 aria-current={tab === 'layers'}
                 onClick={() => setTab('layers')}
               >
-                Layers
+                {t('inspect.layers')}
+              </button>
+              <button
+                type="button"
+                className="odf-seg"
+                aria-current={tab === 'checks'}
+                onClick={() => setTab('checks')}
+              >
+                {t('inspect.diagnostics')}
+                {diagnostics.length > 0 ? ` (${diagnostics.length})` : ''}
               </button>
             </span>
           </div>
@@ -380,7 +447,7 @@ export function InspectPanel(props: InspectPanelProps) {
               <>
                 {measured.textish ? (
                   <>
-                    <div className="odf-section-label">Content</div>
+                    <div className="odf-section-label">{t('inspect.content')}</div>
                     <textarea
                       className="odf-textarea"
                       value={text}
@@ -391,20 +458,21 @@ export function InspectPanel(props: InspectPanelProps) {
                 ) : null}
 
                 <Range
-                  label="Size"
+                  label={t('inspect.size')}
                   value={measured.fontSize}
                   min={8}
                   max={200}
                   step={1}
                   unit="PX"
+                  origin={origins?.properties.fontSize}
                   onChange={(v) => onStyle('fontSize', `${v}px`)}
                 />
                 <div className="odf-field">
-                  <span className="odf-field-label">Weight</span>
+                  <span className="odf-field-label">{t('inspect.weight')}</span>
                   <span className="odf-field-value odf-field-edit">
                     <select
                       className="odf-select"
-                      aria-label="Weight"
+                      aria-label={t('inspect.weight')}
                       value={WEIGHTS.some(([w]) => w === measured.weight) ? measured.weight : '400'}
                       onChange={(e) => onStyle('fontWeight', e.target.value)}
                     >
@@ -417,7 +485,7 @@ export function InspectPanel(props: InspectPanelProps) {
                   </span>
                 </div>
                 <div className="odf-field">
-                  <span className="odf-field-label">Style</span>
+                  <span className="odf-field-label">{t('inspect.style')}</span>
                   <span className="odf-toggles">
                     <button
                       type="button"
@@ -442,24 +510,26 @@ export function InspectPanel(props: InspectPanelProps) {
                   </span>
                 </div>
                 <Range
-                  label="Line height"
+                  label={t('inspect.lineHeight')}
                   value={measured.lineHeight}
                   min={0.8}
                   max={3}
                   step={0.05}
+                  origin={origins?.properties.lineHeight}
                   onChange={(v) => onStyle('lineHeight', String(v))}
                 />
                 <Range
-                  label="Tracking"
+                  label={t('inspect.tracking')}
                   value={measured.tracking}
                   min={-10}
                   max={20}
                   step={0.01}
                   unit="PX"
+                  origin={origins?.properties.letterSpacing}
                   onChange={(v) => onStyle('letterSpacing', `${v}px`)}
                 />
                 <div className="odf-field">
-                  <span className="odf-field-label">Align</span>
+                  <span className="odf-field-label">{t('inspect.align')}</span>
                   <span className="odf-toggles">
                     {ALIGNS.map((align) => (
                       <button
@@ -476,50 +546,97 @@ export function InspectPanel(props: InspectPanelProps) {
                   </span>
                 </div>
 
-                <div className="odf-section-label">Color</div>
+                <div className="odf-section-label">{t('inspect.color')}</div>
                 <ColorField
-                  label="Text"
+                  label={t('inspect.text')}
                   value={measured.color}
+                  origin={origins?.properties.color}
                   onChange={(v) => onStyle('color', v)}
                 />
                 <ColorField
-                  label="Background"
+                  label={t('inspect.background')}
                   value={measured.background === 'transparent' ? '#FFFFFF' : measured.background}
+                  origin={origins?.properties.backgroundColor ?? origins?.properties.background}
                   onChange={(v) => onStyle('backgroundColor', v)}
                 />
 
-                <div className="odf-section-label">Box</div>
-                <Field label="Size" value={`${measured.width} × ${measured.height}`} />
+                <div className="odf-section-label">{t('inspect.tokens')}</div>
+                <div className="odf-swatches" style={{ padding: '0 14px' }}>
+                  {Object.entries(design.palette).map(([name, value]) =>
+                    value === undefined ? null : (
+                      <button
+                        key={name}
+                        type="button"
+                        className="odf-swatch odf-swatch-btn"
+                        title={`Set color to var(--odf-${name}) (${value}) · Shift-click for background`}
+                        onClick={(e) => {
+                          const token = `var(--odf-${name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)})`;
+                          if (e.shiftKey) onStyle('backgroundColor', token);
+                          else onStyle('color', token);
+                        }}
+                      >
+                        <i style={{ background: value }} />
+                        {name}
+                      </button>
+                    ),
+                  )}
+                </div>
+
+                <div className="odf-section-label">{t('inspect.box')}</div>
+                <Field label={t('inspect.size')} value={`${measured.width} × ${measured.height}`} />
 
                 {commentTarget && onComment ? (
-                  <CommentForm target={commentTarget} onAdd={onComment} />
+                  <CommentForm
+                    target={commentTarget}
+                    autoFocusTrigger={commentFocusTrigger}
+                    onAdd={onComment}
+                  />
                 ) : null}
               </>
             ) : (
-              <p className="odf-note odf-note-pad">Click something on the canvas to inspect it.</p>
+              <p className="odf-note odf-note-pad">{t('inspect.emptyClick')}</p>
             )
-          ) : layers.length === 0 ? (
-            <p className="odf-note odf-note-pad">
-              Nothing named yet. Wrap a part of the frame in <code>&lt;Layer name="…"&gt;</code> to
-              list it here.
-            </p>
+          ) : tab === 'layers' ? (
+            layers.length === 0 ? (
+              <p className="odf-note odf-note-pad">{t('inspect.emptyLayers')}</p>
+            ) : (
+              <div className="odf-layer-list">
+                {layers.map((node) => (
+                  <LayerRow
+                    key={node.id}
+                    node={node}
+                    depth={0}
+                    selected={selected}
+                    onSelect={onSelect}
+                  />
+                ))}
+              </div>
+            )
+          ) : diagnostics.length === 0 ? (
+            <p className="odf-note odf-note-pad">{t('inspect.noIssues')}</p>
           ) : (
-            <div className="odf-layer-list">
-              {layers.map((node) => (
-                <LayerRow
-                  key={node.id}
-                  node={node}
-                  depth={0}
-                  selected={selected}
-                  onSelect={onSelect}
-                />
+            <div className="odf-diag-list">
+              {diagnostics.map((d, idx) => (
+                <button
+                  key={`${d.rule}-${d.loc ?? idx}`}
+                  type="button"
+                  className="odf-diag-item"
+                  onClick={() => {
+                    if (!d.loc || !host) return;
+                    const el = host.querySelector<HTMLElement>(`[${LOC_ATTR}="${d.loc}"]`);
+                    if (el) onSelect(el);
+                  }}
+                >
+                  <span className="odf-diag-code">{d.rule}</span>
+                  <span className="odf-diag-msg">{d.message}</span>
+                </button>
               ))}
             </div>
           )}
         </div>
       ) : (
         <div className="odf-panel-body odf-panel-pad">
-          <div className="odf-section-label">Pages</div>
+          <div className="odf-section-label">{t('export.pages')}</div>
           <div className="odf-chips">
             <button
               type="button"
@@ -527,7 +644,7 @@ export function InspectPanel(props: InspectPanelProps) {
               aria-current={scope === 'frame'}
               onClick={() => setScope('frame')}
             >
-              This frame
+              {t('export.thisFrame')}
             </button>
             <button
               type="button"
@@ -535,11 +652,11 @@ export function InspectPanel(props: InspectPanelProps) {
               aria-current={scope === 'file'}
               onClick={() => setScope('file')}
             >
-              All {frameCount}
+              {t('export.allFrames', { n: frameCount })}
             </button>
           </div>
 
-          <div className="odf-section-label">Include</div>
+          <div className="odf-section-label">{t('export.include')}</div>
           <div className="odf-chips">
             {FORMATS.map((f) => (
               <button
@@ -558,7 +675,7 @@ export function InspectPanel(props: InspectPanelProps) {
             ))}
           </div>
 
-          <div className="odf-section-label">Scale</div>
+          <div className="odf-section-label">{t('export.scale')}</div>
           <div className="odf-chips">
             {SCALES.map((s) => (
               <button
@@ -574,7 +691,7 @@ export function InspectPanel(props: InspectPanelProps) {
             ))}
           </div>
 
-          <Field label="Frame" value={`${size.width} × ${size.height}`} />
+          <Field label={t('export.frame')} value={`${size.width} × ${size.height}`} />
           {formats.includes('png') ? (
             <Field label="PNG" value={`${size.width * scale} × ${size.height * scale}`} />
           ) : null}
@@ -585,14 +702,13 @@ export function InspectPanel(props: InspectPanelProps) {
             disabled={busy || formats.length === 0}
             onClick={() => onExport(scope, scale, formats)}
           >
-            {busy ? 'Exporting…' : 'Export zip'}
+            {busy ? t('export.exporting') : t('export.exportZip')}
           </button>
           {status ? <p className="odf-note">{status}</p> : null}
 
-          {/* What lands on disk, said before it does. */}
           <p className="odf-export-summary">
             {formats.length === 0 ? (
-              'Choose at least one format.'
+              t('export.chooseFormat')
             ) : (
               <>
                 {scope === 'file' ? frameCount : 1}{' '}
@@ -611,7 +727,7 @@ export function InspectPanel(props: InspectPanelProps) {
             </p>
           ) : null}
 
-          <div className="odf-section-label">Palette</div>
+          <div className="odf-section-label">{t('export.palette')}</div>
           <div className="odf-swatches">
             {Object.entries(design.palette).map(([name, value]) =>
               value === undefined ? null : (

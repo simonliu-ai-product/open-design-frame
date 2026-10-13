@@ -24,6 +24,7 @@ const FRAME_ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export type OpenDesignFramePluginOptions = {
   userCwd: string;
   config: OpenDesignFrameConfig;
+  version?: string;
 };
 
 type Entry = { id: string; file: string };
@@ -43,7 +44,7 @@ async function discover(root: string): Promise<{ entries: Entry[]; ignored: stri
 }
 
 export function openDesignFramePlugin(opts: OpenDesignFramePluginOptions): Plugin {
-  const { userCwd, config } = opts;
+  const { userCwd, config, version = '0.2.0' } = opts;
   const framesRoot = path.resolve(userCwd, config.framesDir ?? 'frames');
   const themesRoot = path.resolve(userCwd, config.themesDir ?? 'themes');
   let files = new Map<string, string>();
@@ -66,7 +67,9 @@ export function openDesignFramePlugin(opts: OpenDesignFramePluginOptions): Plugi
       return null;
     },
     async load(id) {
-      if (id === `\0${CONFIG_VMOD}`) return `export default ${JSON.stringify(config)};`;
+      if (id === `\0${CONFIG_VMOD}`) {
+        return `export const version = ${JSON.stringify(version)};\nexport default ${JSON.stringify(config)};`;
+      }
       /*
        * A static build has no dev server to ask, so the manifest is baked in at
        * build time. In dev the viewer reads it live from `/__folders` instead —

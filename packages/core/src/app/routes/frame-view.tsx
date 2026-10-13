@@ -1,22 +1,29 @@
 import { frameIds, loadFrame } from 'virtual:open-design-frame/frames';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { CanvasPins } from '../components/canvas-pins.tsx';
+import { ChangesPanel } from '../components/changes-panel.tsx';
 import { CommentDock } from '../components/comment-dock.tsx';
 import { ExportStage } from '../components/export-stage.tsx';
+import { Finder, type FinderAction } from '../components/finder.tsx';
 import { FrameCanvas } from '../components/frame-canvas.tsx';
 import { FrameRail } from '../components/frame-rail.tsx';
 import { InspectPanel } from '../components/inspect-panel.tsx';
+import { LanguageMenu } from '../components/language-menu.tsx';
 import { Player } from '../components/player.tsx';
 import { Selection } from '../components/selection.tsx';
+import { useChanges } from '../lib/changes.ts';
 import { useComments } from '../lib/comments.ts';
 import { mergeDesign } from '../lib/design.ts';
-import { applyEdit, type EditOp, type Loc, locOf } from '../lib/editor.ts';
+import { applyEdit, type EditOp, type Loc, locOf, reportCurrentFrame } from '../lib/editor.ts';
 import { type ExportFormat, type ExportItem, exportZip, slugOf } from '../lib/export.ts';
+import { useT } from '../lib/i18n.tsx';
 import { collectLayers, type LayerNode } from '../lib/layers.ts';
 import { labelOf, type Pick, pickAt, pickOf, resolvePick, samePick } from '../lib/pick.ts';
 import { type FrameModule, nameOf, sizeOf } from '../lib/sdk.ts';
 
-type Dock = 'inspect' | 'export' | null;
+type Dock = 'inspect' | 'changes' | 'export' | null;
+export type ViewMode = 'single' | 'split' | 'grid';
 
 const kebab = (key: string): string => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
@@ -26,8 +33,14 @@ export function FrameView() {
   const [mod, setMod] = useState<FrameModule | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
+  const [splitIndex, setSplitIndex] = useState(1);
+  const [viewMode, setViewMode] = useState<ViewMode>('single');
   const [dock, setDock] = useState<Dock>('inspect');
   const [playing, setPlaying] = useState(false);
+  const [finding, setFinding] = useState(false);
+  const [pickingComment, setPickingComment] = useState(false);
+  const [commentFocusTrigger, setCommentFocusTrigger] = useState(0);
+  const [activeHunkId, setActiveHunkId] = useState<string | null>(null);
   const [zoom, setZoom] = useState<number | undefined>(undefined);
   const [applied, setApplied] = useState(1);
   const [layers, setLayers] = useState<LayerNode[]>([]);
@@ -36,14 +49,10 @@ export function FrameView() {
   const [hovered, setHovered] = useState<HTMLElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  /*
-   * Edits are held until saved, keyed by the element they belong to. Writing on
-   * every keystroke would put a file write and an HMR reload behind each digit
-   * of a font size — the canvas shows the change immediately either way.
-   */
   const [pending, setPending] = useState<Map<string, { loc: Loc; ops: EditOp[] }>>(new Map());
   const [revision, setRevision] = useState(0);
   const frameRef = useRef<HTMLDivElement>(null);
+  const t = useT();
 
   useEffect(() => {
     if (frameFile === null) return;
@@ -60,6 +69,7 @@ export function FrameView() {
         }
         setMod(next);
         setIndex(0);
+        setSplitIndex(next.default.length > 1 ? 1 : 0);
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(err instanceof Error ? err.message : String(err));
@@ -73,24 +83,15 @@ export function FrameView() {
   const frames = mod?.default ?? [];
   const frame = frames[index];
   const Current = frame;
+  const SplitFrame = frames[splitIndex] ?? frames[0];
   const size = frame ? sizeOf(frame) : { width: 0, height: 0 };
 
-  /*
-   * Keyed by which frame is on screen, not by the component identity: the tree
-   * is read out of the DOM after React commits, and a re-render of the same
-   * frame leaves that DOM alone.
-   */
-  const renderedKey = `${frameFile}:${index}`;
+  const renderedKey = `${frameFile}:${index}:${viewMode}`;
   // biome-ignore lint/correctness/useExhaustiveDependencies: the key is the trigger, not an input
   useEffect(() => {
     const host = frameRef.current;
-    // `mod` is in the deps because the canvas does not exist until the module
-    // has loaded — keyed only by the frame, this ran once against a null ref
-    // and never again, and the panel reported a frame with no layers.
     if (!host) return;
     setLayers(collectLayers(host));
-    // Every element is a new object after a reload, so the selection is found
-    // again from what it was, not held as a reference that is now detached.
     setSelected(pick ? resolvePick(host, pick) : null);
     setHovered(null);
   }, [renderedKey, mod, pick]);
@@ -107,16 +108,21 @@ export function FrameView() {
     setSelected(el);
   }, []);
 
-  /*
-   * Picking happens on the canvas, not only in the layer list: the thing a
-   * designer is looking at is the thing they point at, and most of a frame is
-   * never wrapped in a named Layer.
-   */
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `mod` is what puts the canvas in the DOM to listen on
+  // Report current frame & selection to `/__current` so CLI and MCP tools know what is active.
+  useEffect(() => {
+    if (!frameFile) return;
+    const loc = selected ? locOf(selected) : null;
+    void reportCurrentFrame({
+      frameId: frameFile,
+      frameIndex: index,
+      frameName: frame ? nameOf(frame, index) : null,
+      selectedLoc: loc && selected ? { ...loc, label: labelOf(selected) } : null,
+    });
+  }, [frameFile, index, frame, selected]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `mod` and `viewMode` put the canvas in the DOM to listen on
   useEffect(() => {
     const host = frameRef.current;
-    // The canvas does not exist until the module has loaded, and a listener
-    // attached before it does is attached to nothing.
     if (!host) return;
 
     const onMove = (e: PointerEvent) => setHovered(pickAt(host, e.clientX, e.clientY));
@@ -124,12 +130,14 @@ export function FrameView() {
     const onClick = (e: MouseEvent) => {
       const el = pickAt(host, e.clientX, e.clientY);
       if (!el) return;
-      // A frame may contain a link or a button; on a design canvas a click
-      // means "select this", not "follow it".
       e.preventDefault();
       e.stopPropagation();
       select(el);
       setDock('inspect');
+      if (pickingComment) {
+        setPickingComment(false);
+        setCommentFocusTrigger((n) => n + 1);
+      }
     };
 
     host.addEventListener('pointermove', onMove);
@@ -140,7 +148,7 @@ export function FrameView() {
       host.removeEventListener('pointerleave', onLeave);
       host.removeEventListener('click', onClick, true);
     };
-  }, [select, mod]);
+  }, [select, mod, viewMode, pickingComment]);
 
   const onScale = useCallback((next: number) => setApplied(next), []);
 
@@ -149,13 +157,6 @@ export function FrameView() {
     select(null);
   };
 
-  /**
-   * Stage the edit and show it at once.
-   *
-   * The preview is the element's own inline style, which is what the save will
-   * write into the source — so what the canvas shows between the change and the
-   * save is the result, not an approximation of it.
-   */
   const queue = (op: EditOp) => {
     if (!selected) return;
     const loc = locOf(selected);
@@ -175,7 +176,6 @@ export function FrameView() {
     setPending((prev) => {
       const next = new Map(prev);
       const entry = next.get(key) ?? { loc, ops: [] };
-      // One op per property, so dragging a slider twice writes once.
       const ops = entry.ops.filter(
         (existing) =>
           !(
@@ -206,18 +206,12 @@ export function FrameView() {
         }
       }
       setPending(new Map());
-      setStatus('Saved to source');
+      setStatus(t('view.savedToSource'));
     } finally {
       setBusy(false);
     }
   };
 
-  /*
-   * An export needs every frame laid out, and only one is on the canvas — so a
-   * request mounts an off-screen stage and is carried out once React has
-   * committed it. Two frames of waiting, because a fresh subtree has no layout
-   * on the tick it appears.
-   */
   const [request, setRequest] = useState<{
     scope: 'frame' | 'file';
     scale: number;
@@ -231,21 +225,19 @@ export function FrameView() {
 
     const run = async () => {
       try {
-        // Reading a box flushes pending layout, so the stage is measured rather
-        // than assumed to have settled.
         stageHosts.current[0]?.getBoundingClientRect();
         const wanted = request.scope === 'file' ? frames : frames.slice(index, index + 1);
         const offset = request.scope === 'file' ? 0 : index;
         const items: ExportItem[] = [];
-        wanted.forEach((frame, i) => {
+        wanted.forEach((f, i) => {
           const element = stageHosts.current[offset + i];
           if (!element) return;
           const number = String(offset + i + 1).padStart(2, '0');
-          const name = nameOf(frame, offset + i);
+          const name = nameOf(f, offset + i);
           items.push({
             slug: `${number}-${slugOf(name)}`,
             element,
-            size: sizeOf(frame),
+            size: sizeOf(f),
             title: name,
           });
         });
@@ -273,11 +265,6 @@ export function FrameView() {
       }
     };
 
-    /*
-     * A timeout, not an animation frame: this effect already runs after React
-     * has committed the stage, and a tab that is not being painted gets no
-     * frames at all — an export started in a background tab would never begin.
-     */
     const id = window.setTimeout(() => void run(), 0);
     return () => {
       cancelled = true;
@@ -293,21 +280,33 @@ export function FrameView() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setFinding((v) => !v);
+        return;
+      }
       const target = e.target as HTMLElement | null;
-      // Arrow keys belong to whatever field has focus before they belong here.
       if (target?.closest('input, textarea, select')) return;
-      if (playing) return;
+      if (playing || finding) return;
       if (e.key.toLowerCase() === 'p') setPlaying(true);
+      if (e.key.toLowerCase() === 'i') setDock((d) => (d === 'inspect' ? null : 'inspect'));
+      if (e.key.toLowerCase() === 'd' && import.meta.env.DEV) {
+        setDock((d) => (d === 'changes' ? null : 'changes'));
+      }
+      if (e.key.toLowerCase() === 'e') setDock((d) => (d === 'export' ? null : 'export'));
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') step(1);
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') step(-1);
-      if (e.key === 'Escape') select(null);
+      if (e.key === 'Escape') {
+        if (pickingComment) setPickingComment(false);
+        else select(null);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  // Dev only: there is no server to write a note into the source in a build.
   const comments = useComments(import.meta.env.DEV ? frameFile : null);
+  const changesState = useChanges(frameFile, import.meta.env.DEV);
 
   const commentTarget = useMemo(() => {
     if (!selected) return null;
@@ -315,21 +314,91 @@ export function FrameView() {
     return loc ? { line: loc.line, column: loc.column, label: labelOf(selected) } : null;
   }, [selected]);
 
+  const finderActions = useMemo<FinderAction[]>(
+    () => [
+      {
+        key: 'view-single',
+        label: t('finder.switchViewSingle'),
+        run: () => setViewMode('single'),
+      },
+      {
+        key: 'view-split',
+        label: t('finder.switchViewSplit'),
+        run: () => setViewMode('split'),
+      },
+      {
+        key: 'view-grid',
+        label: t('finder.switchViewGrid'),
+        run: () => setViewMode('grid'),
+      },
+      {
+        key: 'dock-inspect',
+        label: t('finder.toggleInspect'),
+        run: () => setDock((d) => (d === 'inspect' ? null : 'inspect')),
+      },
+      ...(import.meta.env.DEV
+        ? [
+            {
+              key: 'dock-changes',
+              label: t('finder.toggleChanges'),
+              run: () => setDock((d) => (d === 'changes' ? null : 'changes')),
+            },
+          ]
+        : []),
+      {
+        key: 'dock-export',
+        label: t('finder.toggleExport'),
+        run: () => setDock((d) => (d === 'export' ? null : 'export')),
+      },
+    ],
+    [t],
+  );
+
+  const hunkCount = changesState.changes?.hunks.length ?? 0;
+
   return (
     <div className="odf-shell">
       <header className="odf-topbar">
         <div className="odf-topbar-left">
-          <Link className="odf-back" to="/" aria-label="All frames">
+          <Link className="odf-back" to="/" aria-label={t('nav.allFrames')}>
             ‹
           </Link>
           <span className="odf-segment">
             <span className="odf-seg" aria-current="true">
-              Frames
+              {t('view.frames')}
             </span>
-            <Link className="odf-seg" to={`/assets?scope=${frameFile}`}>
-              Assets
+            <Link className="odf-seg" to={`/f/${frameFile}/assets`}>
+              {t('view.assets')}
             </Link>
           </span>
+          {frames.length > 1 ? (
+            <span className="odf-segment">
+              <button
+                type="button"
+                className="odf-seg"
+                aria-current={viewMode === 'single'}
+                onClick={() => setViewMode('single')}
+              >
+                {t('view.single')}
+              </button>
+              <button
+                type="button"
+                className="odf-seg"
+                aria-current={viewMode === 'split'}
+                onClick={() => setViewMode('split')}
+              >
+                {t('view.split')}
+              </button>
+              <button
+                type="button"
+                className="odf-seg"
+                aria-current={viewMode === 'grid'}
+                onClick={() => setViewMode('grid')}
+              >
+                {t('view.grid')}
+              </button>
+            </span>
+          ) : null}
         </div>
 
         <div className="odf-topbar-center">
@@ -337,32 +406,35 @@ export function FrameView() {
         </div>
 
         <div className="odf-topbar-right">
-          <div className="odf-zoom">
-            <button
-              type="button"
-              aria-label="Zoom out"
-              onClick={() => setZoom((z) => Math.max(0.1, (z ?? applied) - 0.1))}
-            >
-              −
-            </button>
-            <button type="button" className="odf-zoom-value" onClick={() => setZoom(undefined)}>
-              {Math.round(applied * 100)}%
-            </button>
-            <button
-              type="button"
-              aria-label="Zoom in"
-              onClick={() => setZoom((z) => Math.min(4, (z ?? applied) + 0.1))}
-            >
-              +
-            </button>
-          </div>
+          <LanguageMenu />
+          {viewMode === 'single' ? (
+            <div className="odf-zoom">
+              <button
+                type="button"
+                aria-label={t('view.zoomOut')}
+                onClick={() => setZoom((z) => Math.max(0.1, (z ?? applied) - 0.1))}
+              >
+                −
+              </button>
+              <button type="button" className="odf-zoom-value" onClick={() => setZoom(undefined)}>
+                {Math.round(applied * 100)}%
+              </button>
+              <button
+                type="button"
+                aria-label={t('view.zoomIn')}
+                onClick={() => setZoom((z) => Math.min(4, (z ?? applied) + 0.1))}
+              >
+                +
+              </button>
+            </div>
+          ) : null}
           <button
             type="button"
             className="odf-btn"
             onClick={() => setPlaying(true)}
             disabled={frames.length === 0}
           >
-            <i aria-hidden="true">▶</i> Play <kbd>P</kbd>
+            <i aria-hidden="true">▶</i> {t('view.play')} <kbd>P</kbd>
           </button>
           <button
             type="button"
@@ -370,15 +442,27 @@ export function FrameView() {
             aria-pressed={dock === 'inspect'}
             onClick={() => setDock((d) => (d === 'inspect' ? null : 'inspect'))}
           >
-            <i aria-hidden="true">◎</i> Inspect <kbd>I</kbd>
+            <i aria-hidden="true">◎</i> {t('view.inspect')} <kbd>I</kbd>
           </button>
+          {import.meta.env.DEV ? (
+            <button
+              type="button"
+              className="odf-btn"
+              aria-pressed={dock === 'changes'}
+              onClick={() => setDock((d) => (d === 'changes' ? null : 'changes'))}
+            >
+              <i aria-hidden="true">Δ</i> {t('view.changes')}
+              {hunkCount > 0 ? <span className="odf-btn-badge">{hunkCount}</span> : null}
+              <kbd>D</kbd>
+            </button>
+          ) : null}
           <button
             type="button"
             className="odf-btn odf-btn-primary"
             aria-pressed={dock === 'export'}
             onClick={() => setDock((d) => (d === 'export' ? null : 'export'))}
           >
-            <i aria-hidden="true">↓</i> Export <kbd>E</kbd>
+            <i aria-hidden="true">↓</i> {t('view.export')} <kbd>E</kbd>
           </button>
         </div>
       </header>
@@ -397,13 +481,84 @@ export function FrameView() {
         </aside>
 
         <main
-          className="odf-stage"
+          className={pickingComment ? 'odf-stage odf-stage-picking' : 'odf-stage'}
           onPointerDown={(e) => {
             if (e.target === e.currentTarget) select(null);
           }}
         >
           {error ? (
             <p className="odf-error">{error}</p>
+          ) : viewMode === 'grid' ? (
+            <div className="odf-storyboard-grid">
+              {frames.map((Artboard, i) => {
+                const artSize = sizeOf(Artboard);
+                const artName = nameOf(Artboard, i);
+                return (
+                  <button
+                    key={artName}
+                    type="button"
+                    className="odf-storyboard-cell"
+                    aria-current={i === index}
+                    onClick={() => {
+                      setIndex(i);
+                      setViewMode('single');
+                      select(null);
+                    }}
+                  >
+                    <span className="odf-storyboard-preview">
+                      <FrameCanvas size={artSize} design={design} flat>
+                        <Artboard />
+                      </FrameCanvas>
+                    </span>
+                    <span className="odf-storyboard-caption">
+                      <b>{String(i + 1).padStart(2, '0')}</b> {artName}
+                      <i>
+                        {artSize.width}×{artSize.height}
+                      </i>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : viewMode === 'split' && Current && SplitFrame ? (
+            <div className="odf-split-stage">
+              <div className="odf-split-pane">
+                <div className="odf-split-head">
+                  <span>
+                    {String(index + 1).padStart(2, '0')} · {nameOf(Current, index)}
+                  </span>
+                </div>
+                <div className="odf-split-canvas">
+                  <FrameCanvas size={size} design={design} innerRef={frameRef} onScale={onScale}>
+                    <Current />
+                    {hovered && hovered !== selected ? (
+                      <Selection element={hovered} host={frameRef.current} variant="hover" />
+                    ) : null}
+                    {selected ? <Selection element={selected} host={frameRef.current} /> : null}
+                  </FrameCanvas>
+                </div>
+              </div>
+              <div className="odf-split-pane">
+                <div className="odf-split-head">
+                  <select
+                    className="odf-select"
+                    value={splitIndex}
+                    onChange={(e) => setSplitIndex(Number(e.target.value))}
+                  >
+                    {frames.map((f, i) => (
+                      <option key={nameOf(f, i)} value={i}>
+                        {String(i + 1).padStart(2, '0')} · {nameOf(f, i)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="odf-split-canvas">
+                  <FrameCanvas size={sizeOf(SplitFrame)} design={design}>
+                    <SplitFrame />
+                  </FrameCanvas>
+                </div>
+              </div>
+            </div>
           ) : Current ? (
             <FrameCanvas
               size={size}
@@ -417,6 +572,23 @@ export function FrameView() {
                 <Selection element={hovered} host={frameRef.current} variant="hover" />
               ) : null}
               {selected ? <Selection element={selected} host={frameRef.current} /> : null}
+              {import.meta.env.DEV ? (
+                <CanvasPins
+                  host={frameRef.current}
+                  comments={comments.comments}
+                  hunks={changesState.changes?.hunks ?? []}
+                  showHunks={dock === 'changes'}
+                  activeHunkId={activeHunkId}
+                  onSelectElement={(el) => {
+                    select(el);
+                    setDock('inspect');
+                  }}
+                  onSelectHunk={(id, el) => {
+                    setActiveHunkId(id);
+                    select(el);
+                  }}
+                />
+              ) : null}
             </FrameCanvas>
           ) : null}
 
@@ -424,21 +596,50 @@ export function FrameView() {
             <CommentDock
               comments={comments.comments}
               error={comments.error}
+              picking={pickingComment}
+              host={frameRef.current}
+              onTogglePicking={() => setPickingComment((v) => !v)}
+              onSelectElement={(el) => {
+                select(el);
+                setDock('inspect');
+              }}
               onRemove={(id) => void comments.remove(id)}
             />
           ) : null}
         </main>
 
-        {dock ? (
+        {dock === 'changes' ? (
+          <aside className="odf-dock">
+            <ChangesPanel
+              changes={changesState.changes}
+              revisions={changesState.revisions}
+              against={changesState.against}
+              loading={changesState.loading}
+              error={changesState.error}
+              activeHunkId={activeHunkId}
+              host={frameRef.current}
+              onChangeAgainst={changesState.setAgainst}
+              onSelectHunk={(id, el) => {
+                setActiveHunkId(id);
+                if (el) select(el);
+              }}
+              onRevert={changesState.revert}
+              onClose={() => setDock(null)}
+            />
+          </aside>
+        ) : dock ? (
           <aside className="odf-dock">
             <InspectPanel
               mode={dock}
+              frameId={frameFile}
+              host={frameRef.current}
               design={design}
               size={size}
               layers={layers}
               selected={selected}
               revision={revision}
               commentTarget={import.meta.env.DEV ? commentTarget : null}
+              commentFocusTrigger={commentFocusTrigger}
               onComment={import.meta.env.DEV ? comments.add : null}
               onSelect={select}
               busy={busy}
@@ -457,10 +658,13 @@ export function FrameView() {
       {pending.size > 0 ? (
         <div className="odf-savebar">
           <span className="odf-savebar-count">
-            {pending.size} {pending.size === 1 ? 'layer' : 'layers'} edited
+            {t('view.layersEdited', {
+              n: pending.size,
+              unit: pending.size === 1 ? t('view.layerSingular') : t('view.layerPlural'),
+            })}
           </span>
           <button type="button" className="odf-chip" onClick={() => window.location.reload()}>
-            Discard
+            {t('view.discard')}
           </button>
           <button
             type="button"
@@ -468,7 +672,7 @@ export function FrameView() {
             disabled={busy}
             onClick={() => void save()}
           >
-            {busy ? 'Saving…' : 'Save to source'}
+            {busy ? t('view.saving') : t('view.saveToSource')}
           </button>
         </div>
       ) : null}
@@ -486,6 +690,18 @@ export function FrameView() {
             select(null);
           }}
           onClose={() => setPlaying(false)}
+        />
+      ) : null}
+
+      {finding ? (
+        <Finder
+          artboards={frames}
+          onSelectArtboard={(i) => {
+            setIndex(i);
+            select(null);
+          }}
+          actions={finderActions}
+          onClose={() => setFinding(false)}
         />
       ) : null}
 

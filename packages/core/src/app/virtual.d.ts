@@ -4,6 +4,7 @@ declare module 'virtual:open-design-frame/frames' {
 }
 
 declare module 'virtual:open-design-frame/config' {
+  export const version: string;
   const config: import('../config.ts').OpenDesignFrameConfig;
   export default config;
 }

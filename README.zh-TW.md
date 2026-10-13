@@ -40,7 +40,7 @@ pnpm add -D @open-design-frame/core
 
 <sub>點畫布上的元素，檢視器填入瀏覽器實際解析出的值；按 Save 寫回 TSX。</sub>
 
-任何東西都能點——不限於你包了 `<Layer>` 的部分。改動會**立刻**套用到畫布上並進入暫存，按 Save 才寫回 frame 自己的原始碼。用共用常數當樣式的元素會被明確拒絕並說明原因——改那個常數會把其他用到它的地方一起改掉。
+任何東西都能點——不限於你包了 `<Layer>` 的部分。改動會**立刻**套用到畫布上並進入暫存，按 Save 才寫回 frame 自己的原始碼。用共用常數當樣式的元素（`style={CARD}`）會在檢視器標示來源，並自動展開為行內覆寫（`style={{ ...CARD, padding: 32 }}`），不會動到原本的共用常數。
 
 ### ▶️ 像網站一樣播放
 
@@ -72,7 +72,7 @@ pnpm add -D @open-design-frame/core
 
 ### 🔌 MCP server，任何 agent 框架都能驅動
 
-`open-design-frame dev --mcp` 會在畫布旁掛上 MCP 端點——25 個工具，涵蓋 frame、單一元素、註解、資料夾、主題、設計文件與素材。它是無狀態的 Streamable HTTP，客戶端直接指向 `http://localhost:5274/mcp` 即可，不需要握手。
+`open-design-frame dev --mcp` 會在畫布旁掛上 MCP 端點——32 個工具，涵蓋 frame、瀏覽器當下選取狀態、內建範本、靜態診斷、git diff 變更區塊、單一元素、註解、資料夾、主題、設計文件與素材。它是無狀態的 Streamable HTTP，客戶端直接指向 `http://localhost:5274/mcp` 即可，不需要握手。
 
 這些工具和瀏覽器共用同一份實作，所以 `write_frame` 會帶著你上次讀到的 revision，遇到過期的寫入回 `409`，而不是把別人的修改蓋掉。詳見 [packages/mcp](packages/mcp)。
 
@@ -99,8 +99,15 @@ open-design-frame dev
 
 | 指令 | 做什麼 |
 | --- | --- |
+| `open-design-frame init [dir]` | 初始化工作區，建立起始 frame、`CLAUDE.md`、`AGENTS.md` 與 agent skills |
 | `open-design-frame dev` | 帶熱重載的畫布（`--mcp` 掛上 MCP 端點、`--port`、`--host`） |
 | `open-design-frame build` | 靜態網站輸出到 `dist/`（`--out-dir` 可改） |
+| `open-design-frame preview` | 預覽 `dist/` 建置出的靜態網站 |
+| `open-design-frame templates` | 列出內建畫框範本（`--json`） |
+| `open-design-frame new <id>` | 建立 `frames/<id>`（`--template <id>`、`--title <title>`） |
+| `open-design-frame check [frame]` | 對單一或所有 frame 執行靜態診斷檢查（`--strict`、`--json`） |
+| `open-design-frame diff [frame]` | 檢視對應至畫框元素的 git diff 變更（`--since <rev>`、`--json`） |
+| `open-design-frame sync-skills` | 將內建 agent skills 同步至 `.claude/skills` 與 `.agents/skills` |
 
 ## 檔案契約
 

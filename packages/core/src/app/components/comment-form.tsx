@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useT } from '../lib/i18n.tsx';
 import type { CommentTarget } from './comment-dock.tsx';
 
 export type CommentFormProps = {
   target: CommentTarget;
+  autoFocusTrigger?: number;
   onAdd: (line: number, column: number, note: string) => Promise<boolean>;
 };
 
@@ -13,10 +15,11 @@ export type CommentFormProps = {
  * the note is attached to the element the rest of the panel is describing, and
  * the source it is written into is the same file the panel edits.
  */
-export function CommentForm({ target, onAdd }: CommentFormProps) {
+export function CommentForm({ target, autoFocusTrigger = 0, onAdd }: CommentFormProps) {
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const field = useRef<HTMLTextAreaElement>(null);
+  const t = useT();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -27,6 +30,12 @@ export function CommentForm({ target, onAdd }: CommentFormProps) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  useEffect(() => {
+    if (autoFocusTrigger > 0) {
+      field.current?.focus({ preventScroll: false });
+    }
+  }, [autoFocusTrigger]);
 
   const submit = async () => {
     if (draft.trim() === '') return;
@@ -40,12 +49,12 @@ export function CommentForm({ target, onAdd }: CommentFormProps) {
 
   return (
     <>
-      <div className="odf-section-label">Leave a comment</div>
+      <div className="odf-section-label">{t('comments.add')}</div>
       <textarea
         ref={field}
         className="odf-textarea"
         value={draft}
-        placeholder="Describe a change for the agent…"
+        placeholder={t('comments.placeholder')}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -55,15 +64,15 @@ export function CommentForm({ target, onAdd }: CommentFormProps) {
         }}
       />
       <div className="odf-comment-foot">
-        <span className="odf-comment-hint">⌘/ to focus · ⌘↵ to add</span>
         <button
           type="button"
           className="odf-primary odf-comment-add"
           disabled={busy || draft.trim() === ''}
           onClick={() => void submit()}
         >
-          {busy ? 'Adding…' : 'Add comment'}
+          {busy ? '…' : t('comments.add')}
         </button>
+        <span className="odf-comment-hint">⌘/ · ⌘↵</span>
       </div>
     </>
   );

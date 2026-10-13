@@ -7,7 +7,9 @@ import type { InlineConfig } from 'vite';
 import type { OpenDesignFrameConfig } from '../config.ts';
 import { makeContext } from '../ops/index.ts';
 import { assetsPlugin } from './assets-plugin.ts';
+import { changesPlugin } from './changes-plugin.ts';
 import { commentsPlugin } from './comments-plugin.ts';
+import { currentPlugin } from './current-plugin.ts';
 import { editPlugin } from './edit-plugin.ts';
 import { foldersPlugin } from './folders-plugin.ts';
 import { framesPlugin } from './frames-plugin.ts';
@@ -94,10 +96,12 @@ export async function createViteConfig(opts: CreateViteConfigOptions): Promise<I
     plugins: [
       locTagsPlugin({ framesRoot: framesAbs }),
       react(),
-      openDesignFramePlugin({ userCwd, config }),
+      openDesignFramePlugin({ userCwd, config, version: CORE_VERSION }),
       editPlugin(ctx),
       assetsPlugin(ctx),
+      changesPlugin(ctx),
       commentsPlugin(ctx),
+      currentPlugin(ctx),
       foldersPlugin(ctx),
       framesPlugin(ctx),
       themesPlugin(ctx),

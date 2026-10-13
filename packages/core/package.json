@@ -1,6 +1,6 @@
 {
   "name": "@open-design-frame/core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "license": "MIT",
   "bin": {
@@ -10,6 +10,9 @@
     "dist",
     "src",
     "!src/**/*.test.ts",
+    "!src/**/*.test.tsx",
+    "templates",
+    "skills",
     "bin.js",
     "env.d.ts"
   ],
