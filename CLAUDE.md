@@ -13,7 +13,7 @@ pnpm + Turbo monorepo.
 | Path | Package | Role |
 | --- | --- | --- |
 | `packages/core` | `@open-design-frame/core` | Runtime (canvas, frame rail, inspector, assets), Vite plugins, `open-design-frame` dev/build CLI. |
-| `packages/mcp` | `@open-design-frame/mcp` | MCP server over the same ops. Opt-in: `open-design-frame dev --mcp`. |
+| `packages/mcp` | `@open-design-frame/mcp` | MCP server over the same ops. Opt-in: `open-design-frame dev --mcp` (Streamable HTTP), or the `open-design-frame-mcp` bin over stdio, which settles its workspace on the first call (`--cwd`, the client's roots, then the launch directory and its parents) and refuses every tool until it has one. |
 | `apps/demo` | private | Local consumer via `workspace:*`. Dogfood target — `pnpm dev`. |
 
 ## Workflow
@@ -90,6 +90,21 @@ unwrapped markup still renders, it just cannot be selected.
   shows between the change and the save is the result rather than a guess at it.
   Discard reloads: undoing a preview by hand would be a second implementation of
   the same thing, and the source is already the answer.
+- **A frame that throws stays on its artboard.** `FrameBoundary` wraps every
+  frame `FrameCanvas` and the export stage draw, and resets when the module
+  reloads (a new component). Without it one render error unmounts the whole
+  viewer, and a save half-way through an edit leaves a window no later save
+  brings back. The card carries `data-odf-frame-error`, which `diagnoseFrameDom`
+  reports as `render-error`.
+- **Headless checks drive the real viewer.** `/f/<id>/render` (`routes/frame-render.tsx`)
+  draws each frame at 1:1 and installs `window.__openDesignFrame` (`ready()`,
+  `diagnose()`), settling on fonts and images, never on an animation frame.
+  `src/render/session.ts` opens it with Playwright — found in the user's
+  workspace like the MCP package, typed locally, never a dependency — on a
+  private Vite server, keeps one browser per workspace for a minute, and backs
+  `check --render`, `render`, `check_frames({ render })` and `render_frame`.
+  Nothing about layout is re-implemented on the Node side, and any app hosting
+  the viewer can load the same page.
 - **The inspector edits source, not the DOM.** `loc-tags-plugin` stamps
   `data-odf-loc="line:col"` onto host JSX in `frames/**` (dev only); the panel
   posts ops to `/__edit`, and `editing/edit-ops.ts` rewrites the file with

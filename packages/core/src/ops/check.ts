@@ -14,7 +14,14 @@ export type CheckRule =
   | 'invalid-size'
   | 'unresolved-link'
   | 'missing-asset'
-  | 'unlabeled-layer';
+  | 'unlabeled-layer'
+  // Found by drawing the frame (`render`), not by reading its source.
+  | 'render-error'
+  | 'load-error'
+  | 'frame-overflow'
+  | 'broken-image'
+  | 'tiny-text'
+  | 'blank-frame';
 
 export type CheckSeverity = 'error' | 'warn';
 
@@ -23,6 +30,8 @@ export type CheckFinding = {
   severity: CheckSeverity;
   message: string;
   loc?: string;
+  /** The frame a drawn finding is on. */
+  frame?: string;
 };
 
 export type FrameCheckReport = {
@@ -191,14 +200,49 @@ export async function checkFrame(ctx: OpsContext, frameId: string): Promise<Fram
   };
 }
 
+export type CheckOptions = {
+  /**
+   * Also draw each file in a headless browser (Playwright, found in the
+   * workspace) and add what only a layout shows: a frame that throws, content
+   * past the artboard, images that do not load, unreadably small type.
+   */
+  render?: boolean;
+};
+
 export async function checkFrames(
   ctx: OpsContext,
   ids?: string[],
+  opts: CheckOptions = {},
 ): Promise<{ ok: boolean; reports: FrameCheckReport[] }> {
   const targets = ids && ids.length > 0 ? ids : (await listFrames(ctx)).map((entry) => entry.id);
   const reports: FrameCheckReport[] = [];
+  // Imported only when asked for: it reaches for Vite and Playwright.
+  const render = opts.render ? await import('../render/session.ts') : null;
   for (const id of targets) {
-    reports.push(await checkFrame(ctx, id));
+    const report = await checkFrame(ctx, id);
+    // A file that does not parse is already an error; drawing it says nothing more.
+    if (render && !report.findings.some((f) => f.rule === 'syntax-error')) {
+      const drawn = await render.renderCheck(ctx, id);
+      if (drawn.error) {
+        report.findings.push({
+          rule: 'load-error',
+          severity: 'error',
+          message: `The file does not load: ${drawn.error}`,
+        });
+      }
+      for (const frame of drawn.frames) {
+        for (const f of frame.findings) {
+          report.findings.push({
+            rule: f.rule as CheckRule,
+            severity: f.severity,
+            message: f.element ? `${f.message} (${f.element})` : f.message,
+            frame: frame.name,
+            ...(f.loc ? { loc: f.loc } : {}),
+          });
+        }
+      }
+    }
+    reports.push(report);
   }
   const hasErrors = reports.some((r) => r.findings.some((f) => f.severity === 'error'));
   return { ok: !hasErrors, reports };

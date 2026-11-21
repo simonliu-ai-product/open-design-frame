@@ -55,6 +55,8 @@ export const KO: Messages = {
   'inspect.export': '내보내기',
   'inspect.typography': '타이포그래피',
   'inspect.layers': '레이어',
+  'frame.renderError': '이 프레임을 그릴 수 없습니다',
+  'frame.renderErrorHint': '소스의 오류를 고쳐 주세요. 파일의 다른 프레임은 영향을 받지 않습니다.',
   'inspect.diagnostics': '레이아웃 진단',
   'inspect.content': '텍스트 내용',
   'inspect.size': '크기',

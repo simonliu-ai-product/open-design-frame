@@ -1,6 +1,7 @@
 import type { MutableRefObject } from 'react';
 import { type DesignSystem, designToCssVars } from '../lib/design.ts';
 import { type Frame, nameOf, sizeOf } from '../lib/sdk.ts';
+import { FrameBoundary } from './frame-boundary.tsx';
 
 export type ExportStageProps = {
   frames: Frame[];
@@ -31,7 +32,9 @@ export function ExportStage({ frames, design, hostsRef }: ExportStageProps) {
             className="odf-frame odf-frame-flat"
             style={{ ...vars, position: 'relative', width: size.width, height: size.height }}
           >
-            <Component />
+            <FrameBoundary>
+              <Component />
+            </FrameBoundary>
           </div>
         );
       })}

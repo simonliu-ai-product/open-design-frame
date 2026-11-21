@@ -1,8 +1,11 @@
 {
   "name": "@open-design-frame/mcp",
   "version": "0.2.0",
-  "description": "MCP server for open-design-frame \u2014 lets any agent list, read, edit, comment on and file design frames over Streamable HTTP.",
+  "description": "MCP server for open-design-frame — lets any agent list, read, edit, check, picture, comment on and file design frames, over Streamable HTTP or stdio.",
   "type": "module",
+  "bin": {
+    "open-design-frame-mcp": "./dist/stdio.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

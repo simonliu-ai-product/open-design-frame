@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { type DesignSystem, designToCssVars } from '../lib/design.ts';
 import type { FrameSize } from '../lib/sdk.ts';
+import { FrameBoundary } from './frame-boundary.tsx';
 
 export type FrameCanvasProps = {
   children: ReactNode;
@@ -72,7 +73,7 @@ export function FrameCanvas(props: FrameCanvasProps) {
             transform: `scale(${applied})`,
           }}
         >
-          {children}
+          <FrameBoundary>{children}</FrameBoundary>
         </div>
       </div>
     </div>

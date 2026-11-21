@@ -55,6 +55,8 @@ export const ZH_TW: Messages = {
   'inspect.export': '匯出檔案',
   'inspect.typography': '字體與外觀',
   'inspect.layers': '圖層樹',
+  'frame.renderError': '這個畫框無法顯示',
+  'frame.renderErrorHint': '請修正它原始碼裡的錯誤，檔案裡的其他畫框不受影響。',
   'inspect.diagnostics': '版面診斷',
   'inspect.content': '文字內容',
   'inspect.size': '字級大小',

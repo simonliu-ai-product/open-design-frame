@@ -55,6 +55,8 @@ export const ZH_CN: Messages = {
   'inspect.export': '导出文件',
   'inspect.typography': '排版与外观',
   'inspect.layers': '图层树',
+  'frame.renderError': '这个画框无法显示',
+  'frame.renderErrorHint': '请修正它源代码里的错误，文件里的其他画框不受影响。',
   'inspect.diagnostics': '版面诊断',
   'inspect.content': '文本内容',
   'inspect.size': '字号大小',

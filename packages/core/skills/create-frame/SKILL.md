@@ -18,3 +18,5 @@ Follow this workflow when asked to create a new design, UI screen, prototype, or
    - Wrap major semantic sections and interactive elements in `<Layer name="...">` so they appear in the layer tree.
 4. **Verify with `open-design-frame check`**:
    - Always run `npx open-design-frame check <id>` before finishing to verify syntax, `<Layer to="...">` prototype links, and asset paths.
+   - When Playwright is installed, run `npx open-design-frame check <id> --render` instead: it also draws every frame and reports one that throws, content past the artboard, images that do not load and type under 9px. Fix every error it reports.
+   - Look at what you made: `npx open-design-frame render <id> --frame "<name>"` saves a PNG (over MCP, `render_frame`).
