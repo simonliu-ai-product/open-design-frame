@@ -50,6 +50,7 @@ unwrapped markup still renders, it just cannot be selected.
 
 ## Architecture notes
 
+- **A workspace needs no install of its own.** `vite/config.ts` aliases `@open-design-frame/core` to the running core's `dist` and React to core's copy, so a host app can serve a workspace from one shared core; with a normal install the alias points at the same file. `OPEN_DESIGN_FRAME_CACHE_DIR` gives each workspace its own Vite cache — the default sits beside `root`, inside core, and would be shared by every workspace one core serves.
 - **The size travels with the frame, not the project.** open-doc fixes A4 and
   open-slide fixes 16:9 because the medium decides; a design has no medium, so
   `Frame.size` is per-frame and `SIZES` only names the common ones.
