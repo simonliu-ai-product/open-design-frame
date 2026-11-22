@@ -86,8 +86,13 @@ export function createSessionStore(opts: { file: string | null }) {
     for (const l of listeners) l(event);
   };
 
+  // Nothing to write until something changed, so a store that only read the
+  // file never saves its snapshot over a newer one.
+  let dirty = false;
+
   const scheduleSave = () => {
     if (!opts.file) return;
+    dirty = true;
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       saveTimer = null;
@@ -117,6 +122,7 @@ export function createSessionStore(opts: { file: string | null }) {
   const save = () => {
     const file = opts.file;
     if (!file) return saving;
+    dirty = false;
     saving = saving.then(() => writeSnapshot(file));
     return saving;
   };
@@ -255,7 +261,8 @@ export function createSessionStore(opts: { file: string | null }) {
       clearTimeout(saveTimer);
       saveTimer = null;
     }
-    await save();
+    if (dirty) await save();
+    else await saving;
   }
 
   return {

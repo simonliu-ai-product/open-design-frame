@@ -2,9 +2,13 @@ import { createServer } from 'vite';
 import { createViteConfig } from '../vite/config.ts';
 
 export async function dev(
-  opts: { port?: number; host?: string | boolean; mcp?: boolean } = {},
+  opts: { port?: number; host?: string | boolean; mcp?: boolean; agent?: boolean } = {},
 ): Promise<void> {
-  const config = await createViteConfig({ userCwd: process.cwd(), mcp: opts.mcp === true });
+  const config = await createViteConfig({
+    userCwd: process.cwd(),
+    mcp: opts.mcp === true,
+    agent: opts.agent !== false,
+  });
   const server = await createServer({
     ...config,
     server: {

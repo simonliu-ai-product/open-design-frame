@@ -162,6 +162,16 @@ describe('createSessionStore', () => {
     expect(createSessionStore({ file }).get(s.id)?.title).toBe('Latest');
   });
 
+  it('does not save over the file when nothing changed', async () => {
+    const file = path.join(dir, 'sessions.json');
+    const reader = createSessionStore({ file });
+    const writer = createSessionStore({ file });
+    writer.create('codex', 'report');
+    await writer.flush();
+    await reader.flush();
+    expect(createSessionStore({ file }).list()).toHaveLength(1);
+  });
+
   it('removes sessions and caps the idle backlog', () => {
     const store = createSessionStore({ file: null });
     for (let i = 0; i < 35; i++) store.create('codex', null);
