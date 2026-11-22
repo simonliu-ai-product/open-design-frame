@@ -39,14 +39,16 @@ describe('agent request parsing', () => {
     expect(parseContext(null)).toBeUndefined();
   });
 
-  it('accepts model ids and efforts it knows, and nothing else', () => {
+  it('accepts well-formed model ids and efforts, and nothing else', () => {
     expect(parseModel('gpt-5.1-codex')).toBe('gpt-5.1-codex');
     expect(parseModel('a b')).toBeNull();
-    expect(parseTurnSettings({ model: 'x;rm', effort: 'turbo' })).toEqual({
+    expect(parseTurnSettings({ model: 'x;rm', effort: 'Not a level!' })).toEqual({
       model: null,
       effort: null,
     });
     expect(parseTurnSettings({ effort: 'high' })).toEqual({ effort: 'high' });
+    // A level newer than the panel passes through as the model list gives it.
+    expect(parseTurnSettings({ effort: 'ultra' })).toEqual({ effort: 'ultra' });
   });
 
   it('reads answers or a skip, and refuses anything else', () => {
