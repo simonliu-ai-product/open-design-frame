@@ -78,8 +78,11 @@ body {
 .odf-topbar-center {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 12px;
-  justify-self: center;
+  /* Stretched to its column and centred inside it: a centred item sized to its
+     own text would spill over the controls beside it instead of truncating. */
+  justify-self: stretch;
   min-width: 0;
   overflow: hidden;
 }
