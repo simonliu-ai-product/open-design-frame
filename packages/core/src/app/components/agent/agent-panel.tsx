@@ -1,12 +1,14 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { applyCommentsPrompt, CREATE_FRAME_PROMPT } from '../../../agent/prompt.ts';
-import type {
-  AgentEffort,
-  AgentModelOption,
-  AgentProviderId,
-  AgentTurnContext,
-  RespondPayload,
+import {
+  type AgentEffort,
+  type AgentModelOption,
+  type AgentProviderId,
+  type AgentTurnContext,
+  isKnownAgentEffort,
+  plainEffortName,
+  type RespondPayload,
 } from '../../../agent/types.ts';
 import {
   autoConnect,
@@ -268,6 +270,11 @@ export function AgentPanel({
   );
 }
 
+/** A reasoning level in the interface's words, or under its own name when it is newer than the panel. */
+function effortName(effort: string, t: TFunction): string {
+  return isKnownAgentEffort(effort) ? t(`agent.effort.${effort}`) : plainEffortName(effort);
+}
+
 function modelLabel(model: AgentModelOption, t: TFunction): string {
   return model.id ? model.label : t('agent.modelDefault');
 }
@@ -323,7 +330,7 @@ function ModelMenu({
       >
         <ProviderLogo provider={providerId} className="odf-agent-logo" />
         <span>{model ? modelLabel(model, t) : t('agent.title')}</span>
-        {effort ? <small>{t(`agent.effort.${effort}`)}</small> : null}
+        {effort ? <small>{effortName(effort, t)}</small> : null}
         <span aria-hidden="true">▾</span>
       </button>
       {open ? (
@@ -353,7 +360,7 @@ function ModelMenu({
                     aria-pressed={e === effort}
                     onClick={() => onChoose(selected.id, e)}
                   >
-                    {e ? t(`agent.effort.${e}`) : t('agent.effortAuto')}
+                    {e ? effortName(e, t) : t('agent.effortAuto')}
                   </button>
                 ))}
               </div>
