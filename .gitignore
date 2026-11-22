@@ -12,3 +12,7 @@ apps/demo/dist
 apps/demo/frames/flow-web/
 apps/demo/frames/flow-app/
 apps/demo/frames/ember-web/
+
+# headless render tests
+packages/core/src/render/.render-test-*
+packages/mcp/src/.mcp-test-*

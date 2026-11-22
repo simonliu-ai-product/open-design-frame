@@ -8,7 +8,8 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # Playwright 1.56 has no browsers for newer Ubuntu images yet.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -17,6 +18,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The render checks draw frames in a headless Chromium.
+      - run: pnpm exec playwright install --with-deps chromium-headless-shell
       - run: pnpm check
       - run: pnpm build
       - run: pnpm typecheck

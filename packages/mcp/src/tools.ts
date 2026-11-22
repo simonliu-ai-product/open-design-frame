@@ -56,7 +56,7 @@ function ok(value: unknown) {
  * An OpsError is a refusal the caller can act on (404 wrong id, 409 stale
  * write), so it comes back as a tool error rather than a transport failure.
  */
-async function run(fn: () => Promise<unknown>) {
+async function runTool(fn: () => Promise<unknown>) {
   try {
     return ok(await fn());
   } catch (err) {
@@ -70,7 +70,20 @@ async function run(fn: () => Promise<unknown>) {
   }
 }
 
-export function registerTools(server: McpServer, ctx: OpsContext): void {
+export function registerTools(
+  server: McpServer,
+  ctx: OpsContext,
+  /**
+   * Awaited before every tool call. The stdio entry uses it to settle which
+   * workspace `ctx` points at, and to refuse the call when there is none.
+   */
+  ensureWorkspace?: () => Promise<void>,
+): void {
+  const run = (fn: () => Promise<unknown>) =>
+    runTool(async () => {
+      await ensureWorkspace?.();
+      return fn();
+    });
   server.registerTool(
     'list_frames',
     {
@@ -178,12 +191,70 @@ export function registerTools(server: McpServer, ctx: OpsContext): void {
       title: 'Check frames',
       description:
         'Validate frame files for syntax errors, unresolved <Layer to="…"> prototype links, ' +
-        'missing assets, and duplicate frame names.',
+        'missing assets, and duplicate frame names. With render: true each file is also drawn ' +
+        'in a headless browser, which finds what only a layout shows: a frame that throws, ' +
+        'content past the artboard, images that do not load, type under 9px. Render after ' +
+        'every change you make.',
       inputSchema: z.object({
         ids: z.array(FRAME_ID).optional().describe('frame ids to check; omit to check all'),
+        render: z
+          .boolean()
+          .optional()
+          .describe('also draw the frames (needs Playwright in the workspace)'),
       }),
     },
-    ({ ids }) => run(() => checkFrames(ctx, ids)),
+    ({ ids, render }) => run(() => checkFrames(ctx, ids, { render: render === true })),
+  );
+
+  server.registerTool(
+    'render_frame',
+    {
+      title: 'Picture of a frame',
+      description:
+        'A PNG of one frame exactly as the canvas draws it, to look at the design you made. ' +
+        'Needs Playwright in the workspace.',
+      inputSchema: z.object({
+        frameId: FRAME_ID,
+        frame: z
+          .string()
+          .optional()
+          .describe('the frame name (frameName) within the file; the first when left out'),
+        scale: z.number().min(0.25).max(3).optional().describe('pixel density; default 1'),
+      }),
+    },
+    async ({ frameId, frame, scale }) => {
+      try {
+        await ensureWorkspace?.();
+        const { renderFrameImage } = await import('@open-design-frame/core/render');
+        const pic = await renderFrameImage(ctx, frameId, frame, { scale: scale ?? 1 });
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `${pic.name} — ${pic.width}×${pic.height} at ${scale ?? 1}x`,
+            },
+            {
+              type: 'image' as const,
+              data: Buffer.from(pic.png).toString('base64'),
+              mimeType: 'image/png',
+            },
+          ],
+        };
+      } catch (err) {
+        if (err instanceof Error && 'status' in err) {
+          return {
+            isError: true,
+            content: [
+              {
+                type: 'text' as const,
+                text: `${(err as { status: number }).status}: ${err.message}`,
+              },
+            ],
+          };
+        }
+        throw err;
+      }
+    },
   );
 
   server.registerTool(

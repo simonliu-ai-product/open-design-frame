@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { LocaleProvider } from './lib/i18n.tsx';
 import { AssetsPage } from './routes/assets.tsx';
 import { FrameAssets } from './routes/frame-assets.tsx';
+import { FrameRender } from './routes/frame-render.tsx';
 import { FrameView } from './routes/frame-view.tsx';
 import { Home } from './routes/home.tsx';
 import { HomeShell } from './routes/home-shell.tsx';
@@ -22,6 +23,7 @@ export function App() {
           </Route>
           <Route path="/f/:fileId" element={<FrameView />} />
           <Route path="/f/:fileId/assets" element={<FrameAssets />} />
+          <Route path="/f/:fileId/render" element={<FrameRender />} />
         </Routes>
       </BrowserRouter>
     </LocaleProvider>

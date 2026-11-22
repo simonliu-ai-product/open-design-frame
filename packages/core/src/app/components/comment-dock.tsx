@@ -124,9 +124,11 @@ export function CommentDock({
             }
             aria-pressed={picking}
             title={t('comments.newComment')}
+            aria-label={t('comments.newComment')}
             onClick={onTogglePicking}
           >
-            ＋ {t('comments.newComment')}
+            <span aria-hidden="true">＋</span>
+            <span className="odf-comments-label">{t('comments.newComment')}</span>
           </button>
         ) : null}
 

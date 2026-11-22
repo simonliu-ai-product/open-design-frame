@@ -1,8 +1,9 @@
 import { LOC_ATTR } from '../../editing/loc.ts';
+import { FRAME_ERROR_ATTR } from '../components/frame-boundary.tsx';
 import type { FrameSize } from './sdk.ts';
 
 export type DomDiagnostic = {
-  rule: 'frame-overflow' | 'broken-image' | 'tiny-text' | 'blank-frame';
+  rule: 'render-error' | 'frame-overflow' | 'broken-image' | 'tiny-text' | 'blank-frame';
   severity: 'error' | 'warn';
   message: string;
   element?: string;
@@ -41,6 +42,17 @@ function snippet(el: Element): string {
  */
 export function diagnoseFrameDom(host: HTMLElement, _size: FrameSize): DomDiagnostic[] {
   const findings: DomDiagnostic[] = [];
+  const failed = host.querySelector(`[${FRAME_ERROR_ATTR}]`);
+  if (failed) {
+    // Nothing else on the artboard is the design: the rest would describe the error card.
+    return [
+      {
+        rule: 'render-error',
+        severity: 'error',
+        message: `The frame throws while rendering: ${failed.getAttribute(FRAME_ERROR_ATTR)}`,
+      },
+    ];
+  }
   const hostRect = host.getBoundingClientRect();
   if (hostRect.width <= 0 || hostRect.height <= 0) return findings;
 

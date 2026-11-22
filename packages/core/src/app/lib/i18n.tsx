@@ -72,6 +72,8 @@ export const EN = {
   'inspect.export': 'Export',
   'inspect.typography': 'Typography',
   'inspect.layers': 'Layers',
+  'frame.renderError': 'This frame could not be drawn',
+  'frame.renderErrorHint': 'Fix the error in its source; the rest of the file still works.',
   'inspect.diagnostics': 'Checks',
   'inspect.content': 'Content',
   'inspect.size': 'Size',

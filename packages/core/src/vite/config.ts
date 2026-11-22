@@ -92,6 +92,12 @@ export async function createViteConfig(opts: CreateViteConfigOptions): Promise<I
   return {
     root: APP_ROOT,
     base: config.base ?? '/',
+    // Vite's default sits beside `root`, inside core: shared by every workspace
+    // a single core serves. A host serving many workspaces from one shared core
+    // gives each its own.
+    ...(process.env.OPEN_DESIGN_FRAME_CACHE_DIR
+      ? { cacheDir: process.env.OPEN_DESIGN_FRAME_CACHE_DIR }
+      : {}),
     configFile: false,
     plugins: [
       locTagsPlugin({ framesRoot: framesAbs }),
@@ -118,12 +124,17 @@ export async function createViteConfig(opts: CreateViteConfigOptions): Promise<I
         : []),
     ],
     resolve: {
-      alias: {
-        // A frame imports `@open-design-frame/core`; from the viewer's root that name
-        // resolves against core's own node_modules, which is where it already is.
-        react: path.dirname(require.resolve('react/package.json')),
-        'react-dom': path.dirname(require.resolve('react-dom/package.json')),
-      },
+      alias: [
+        // A frame may sit in a workspace with no install of its own, or with
+        // another core version than the one serving it, so it always gets the
+        // running core. With a normal install that is the same file.
+        {
+          find: /^@open-design-frame\/core$/,
+          replacement: path.join(PKG_ROOT, 'dist', 'index.js'),
+        },
+        { find: 'react', replacement: path.dirname(require.resolve('react/package.json')) },
+        { find: 'react-dom', replacement: path.dirname(require.resolve('react-dom/package.json')) },
+      ],
     },
     /*
      * The viewer's own imports have to be pre-bundled by name.

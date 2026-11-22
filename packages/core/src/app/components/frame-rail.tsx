@@ -47,7 +47,9 @@ export function FrameRail({ frames, design, current, onSelect }: FrameRailProps)
                     <Component />
                   </FrameCanvas>
                 </span>
-                <span className="odf-rail-name">{name}</span>
+                <span className="odf-rail-name" title={name}>
+                  {name}
+                </span>
               </span>
             </button>
           );

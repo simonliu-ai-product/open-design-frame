@@ -1,3 +1,5 @@
+import { writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { Command } from 'commander';
 import {
   checkFrames,
@@ -12,6 +14,12 @@ import { dev } from './dev.ts';
 import { initWorkspace } from './init.ts';
 import { preview } from './preview.ts';
 import { syncSkills } from './sync.ts';
+
+/** Rendering leaves a browser and a server open; the CLI closes them so the process can end. */
+async function closeRenderSessionsIfLoaded(): Promise<void> {
+  const { closeRenderSessions } = await import('../render/session.ts');
+  await closeRenderSessions();
+}
 
 const program = new Command();
 
@@ -71,9 +79,15 @@ program
   .command('check [ids...]')
   .description('Check frames for syntax, prototype links, missing assets and declarations')
   .option('--json', 'print JSON report')
-  .action(async (ids: string[], opts: { json?: boolean }) => {
+  .option(
+    '--render',
+    'also draw each frame (needs Playwright): errors while rendering, overflow, broken images, tiny type',
+  )
+  .action(async (ids: string[], opts: { json?: boolean; render?: boolean }) => {
     const ctx = makeContext({ userCwd: process.cwd() });
-    const result = await checkFrames(ctx, ids.length > 0 ? ids : undefined);
+    const result = await checkFrames(ctx, ids.length > 0 ? ids : undefined, {
+      render: opts.render === true,
+    }).finally(closeRenderSessionsIfLoaded);
     if (opts.json) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
@@ -89,7 +103,8 @@ program
         for (const finding of report.findings) {
           const icon = finding.severity === 'error' ? '✗' : '!';
           const at = finding.loc ? `  @ ${finding.loc}` : '';
-          process.stdout.write(`  ${icon} [${finding.rule}] ${finding.message}${at}\n`);
+          const where = finding.frame ? ` ${finding.frame}:` : '';
+          process.stdout.write(`  ${icon} [${finding.rule}]${where} ${finding.message}${at}\n`);
         }
       }
     }
@@ -170,6 +185,31 @@ program
           );
         }
       }
+    }
+  });
+
+program
+  .command('render <id>')
+  .description('Save a PNG of one frame (needs Playwright)')
+  .option('-f, --frame <name>', 'frame name or 1-based number; the first when left out')
+  .option('-o, --out <file>', 'where to write the PNG', '')
+  .option('-s, --scale <n>', 'pixel density', (v) => Number.parseFloat(v), 2)
+  .action(async (id: string, opts: { frame?: string; out: string; scale: number }) => {
+    const { renderFrameImage, closeRenderSessions } = await import('../render/session.ts');
+    const ctx = makeContext({ userCwd: process.cwd() });
+    const frame = opts.frame && /^\d+$/.test(opts.frame) ? Number(opts.frame) - 1 : opts.frame;
+    try {
+      const pic = await renderFrameImage(ctx, id, frame, { scale: opts.scale });
+      const slug =
+        pic.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '') || 'frame';
+      const out = path.resolve(opts.out || `${id}-${slug}.png`);
+      writeFileSync(out, pic.png);
+      process.stdout.write(`${pic.name} (${pic.width}×${pic.height} @${opts.scale}x) → ${out}\n`);
+    } finally {
+      await closeRenderSessions();
     }
   });
 

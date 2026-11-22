@@ -53,9 +53,13 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  /* A narrow window clips the bars rather than scrolling the whole page sideways. */
+  overflow: hidden;
 }
 
 .odf-topbar {
+  /* The bar gives way as it narrows: shortcut hints, then labels, then the title. */
+  container: odf-topbar / inline-size;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -74,8 +78,11 @@ body {
 .odf-topbar-center {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 12px;
-  justify-self: center;
+  /* Stretched to its column and centred inside it: a centred item sized to its
+     own text would spill over the controls beside it instead of truncating. */
+  justify-self: stretch;
   min-width: 0;
   overflow: hidden;
 }
@@ -150,6 +157,7 @@ body {
 .odf-btn {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   padding: 6px 12px;
   border: 1px solid var(--odf-ui-line);
   border-radius: 9px;
@@ -301,6 +309,36 @@ body {
 .odf-frame-flat {
   box-shadow: none;
   border-radius: 0;
+}
+
+/* A frame that threw: sized off the artboard itself so it reads in a thumbnail too. */
+.odf-frame-error {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2cqh;
+  padding: 8cqw;
+  background: repeating-linear-gradient(-45deg, #fff5f5 0 12px, #fff 12px 24px);
+  color: #7f1d1d;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(12px, 3.2cqw, 40px);
+  line-height: 1.35;
+}
+.odf-frame-error-title {
+  font-size: 1.3em;
+}
+.odf-frame-error-message {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+  color: #b91c1c;
+}
+.odf-frame-error-hint {
+  color: #991b1b;
+  opacity: 0.8;
 }
 
 .odf-dock {
@@ -887,10 +925,9 @@ code {
 }
 .odf-btn i {
   font-style: normal;
-  margin-right: 5px;
 }
 .odf-btn kbd {
-  margin-left: 7px;
+  margin-left: 1px;
   padding: 1px 5px;
   border-radius: 4px;
   font: inherit;
@@ -2545,4 +2582,76 @@ code {
 .odf-split-canvas > .odf-canvas-box {
   position: absolute;
   inset: 16px;
+}
+
+/* /f/<id>/render: every frame at its own size, nothing else. */
+.odf-render {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 40px;
+  min-height: 100vh;
+  background: #e5e5e5;
+}
+.odf-render-error {
+  margin: 0;
+  font:
+    13px / 1.5 ui-monospace,
+    monospace;
+  color: #b91c1c;
+  white-space: pre-wrap;
+}
+
+/* View modes: words when there is room, their icons when there is not. */
+.odf-seg-icon {
+  display: none;
+}
+.odf-seg-icon svg {
+  display: block;
+}
+.odf-rail-name {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
+@container odf-topbar (max-width: 1240px) {
+  .odf-btn kbd {
+    display: none;
+  }
+}
+@container odf-topbar (max-width: 1080px) {
+  .odf-btn:not(.odf-btn-primary) .odf-btn-label {
+    display: none;
+  }
+  .odf-btn:not(.odf-btn-primary) {
+    padding: 6px 9px;
+  }
+}
+@container odf-topbar (max-width: 900px) {
+  .odf-seg-label {
+    display: none;
+  }
+  .odf-seg-icon {
+    display: block;
+  }
+}
+@container odf-topbar (max-width: 760px) {
+  .odf-topbar-center {
+    display: none;
+  }
+  .odf-topbar {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .odf-btn-primary .odf-btn-label {
+    display: none;
+  }
+}
+@media (max-width: 1100px) {
+  .odf-comments-label {
+    display: none;
+  }
 }

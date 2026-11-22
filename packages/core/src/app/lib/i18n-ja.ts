@@ -55,6 +55,9 @@ export const JA: Messages = {
   'inspect.export': '書き出し',
   'inspect.typography': 'タイポグラフィ',
   'inspect.layers': 'レイヤー',
+  'frame.renderError': 'このフレームを描画できませんでした',
+  'frame.renderErrorHint':
+    'ソースのエラーを直してください。ファイル内のほかのフレームは影響を受けません。',
   'inspect.diagnostics': 'レイアウト診断',
   'inspect.content': 'テキスト内容',
   'inspect.size': 'サイズ',
@@ -89,7 +92,7 @@ export const JA: Messages = {
   'comments.count': '{n} 件の{unit}',
   'comments.singular': 'コメント',
   'comments.plural': 'コメント',
-  'comments.newComment': '新規コメントピン',
+  'comments.newComment': '新規コメント',
   'comments.pickingHint': 'コメントを付ける要素をキャンバス上でクリック（Escでキャンセル）',
   'comments.empty': 'コメントはまだありません。要素を選択するか + ボタンでピン留めできます。',
   'comments.add': 'コメントを追加',

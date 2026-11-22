@@ -29,6 +29,10 @@
       "types": "./dist/ops/index.d.ts",
       "import": "./dist/ops/index.js"
     },
+    "./render": {
+      "types": "./dist/render/index.d.ts",
+      "import": "./dist/render/index.js"
+    },
     "./env": {
       "types": "./env.d.ts"
     }
@@ -69,5 +73,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "playwright": ">=1.40.0"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
   }
 }

@@ -72,7 +72,9 @@ Export writes a single zip with a folder per format: HTML that opens on its own 
 
 ### 🔌 An MCP server, so any agent framework can drive it
 
-`open-design-frame dev --mcp` mounts an MCP endpoint next to the canvas — 32 tools covering frames, the active browser selection, templates, static diagnostics, git diff hunks, one element at a time, comments, folders, themes, design documents, and assets. It is stateless Streamable HTTP, so a client just points at `http://localhost:5274/mcp` with no session handshake.
+`open-design-frame dev --mcp` mounts an MCP endpoint next to the canvas — 33 tools covering frames, the active browser selection, templates, diagnostics (static, and drawn in a headless browser), pictures of a frame, git diff hunks, one element at a time, comments, folders, themes, design documents, and assets. It is stateless Streamable HTTP, so a client just points at `http://localhost:5274/mcp` with no session handshake.
+
+Clients that start their own servers (Claude Code, Antigravity, Gemini CLI) run the same tools over stdio with `npx -p @open-design-frame/mcp open-design-frame-mcp`; it finds the workspace from the client's folders or where it was started.
 
 The tools and the browser share one implementation, so `write_frame` takes the revision you last read and refuses a stale write with `409` rather than overwriting whoever got there first. See [packages/mcp](packages/mcp).
 
@@ -105,7 +107,8 @@ Open http://localhost:5274. From there, drive it through your agent — or edit 
 | `open-design-frame preview` | Serve the static site in `dist/` |
 | `open-design-frame templates` | List built-in frame templates (`--json`) |
 | `open-design-frame new <id>` | Create `frames/<id>` (`--template <id>`, `--title <title>`) |
-| `open-design-frame check [frame]` | Run static diagnostics on one or all frames (`--strict`, `--json`) |
+| `open-design-frame check [frame]` | Run static diagnostics on one or all frames (`--json`; `--render` also draws them: errors while rendering, overflow, broken images, tiny type) |
+| `open-design-frame render <frame>` | Save a PNG of one frame (`--frame <name>`, `--scale <n>`, `--out <file>`) |
 | `open-design-frame diff [frame]` | Inspect git diff hunks mapped to frame elements (`--since <rev>`, `--json`) |
 | `open-design-frame sync-skills` | Copy canonical agent skills into `.claude/skills` and `.agents/skills` |
 
