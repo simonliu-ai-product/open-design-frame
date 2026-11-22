@@ -1,5 +1,9 @@
 # Changelog
 
+From the next release on, changesets write each release's notes into
+`packages/core/CHANGELOG.md` (core and mcp share one version); this file keeps the
+history up to 0.2.0.
+
 ## 0.2.0
 
 - **Shared style constants can be overridden inline.** Selecting an element

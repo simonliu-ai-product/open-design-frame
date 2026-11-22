@@ -30,6 +30,8 @@ pnpm test         # vitest
 **After changing `packages/core/src`, rebuild it (`pnpm --filter @open-design-frame/core build`)
 before testing the demo** — the demo's `open-design-frame` binary runs the built `dist`.
 
+Branches and releases follow the `release-flow` skill (`.claude/skills/release-flow/`): work on `feat/`, `fix/`, `chore/` branches from `nightly`, pull requests into `nightly` with a changeset (`pnpm changeset`) when `packages/*` change; `nightly` is merged into `main` only when the maintainer decides to release, and CI publishes core and mcp from `main` with trusted publishing. Never bump versions, edit a package `CHANGELOG.md` or publish by hand.
+
 ## What a frame is
 
 `frames/<id>/index.tsx` default-exports an array of frames. A frame is a
