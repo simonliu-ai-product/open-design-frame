@@ -2,7 +2,7 @@
   "name": "open-design-frame-monorepo",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "turbo run dev --filter=demo",
     "build": "turbo run build",
@@ -10,18 +10,17 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "test": "vitest run",
-    "core": "pnpm --filter @open-design-frame/core"
+    "core": "pnpm --filter @open-design-frame/core",
+    "changeset": "changeset",
+    "version-packages": "changeset version && pnpm install --lockfile-only",
+    "release": "turbo run build --filter=./packages/* && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.7",
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.3",
     "turbo": "^2.10.10",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "rolldown"
-    ]
   }
 }
