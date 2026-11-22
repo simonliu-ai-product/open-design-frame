@@ -1,6 +1,9 @@
 import { frameIds, loadFrame } from 'virtual:open-design-frame/frames';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import type { AgentTurnContext } from '../../agent/types.ts';
+import { AgentPanel } from '../components/agent/agent-panel.tsx';
+import { AgentPresence } from '../components/agent/agent-presence.tsx';
 import { CanvasPins } from '../components/canvas-pins.tsx';
 import { ChangesPanel } from '../components/changes-panel.tsx';
 import { CommentDock } from '../components/comment-dock.tsx';
@@ -12,6 +15,14 @@ import { InspectPanel } from '../components/inspect-panel.tsx';
 import { LanguageMenu } from '../components/language-menu.tsx';
 import { Player } from '../components/player.tsx';
 import { Selection } from '../components/selection.tsx';
+import {
+  AGENT_DOCK_KEY,
+  agentAvailable,
+  readStorage,
+  useAgentActivity,
+  useAgentDockMemory,
+  useAgentStatus,
+} from '../lib/agent.ts';
 import { useChanges } from '../lib/changes.ts';
 import { useComments } from '../lib/comments.ts';
 import { mergeDesign } from '../lib/design.ts';
@@ -22,7 +33,7 @@ import { collectLayers, type LayerNode } from '../lib/layers.ts';
 import { labelOf, type Pick, pickAt, pickOf, resolvePick, samePick } from '../lib/pick.ts';
 import { type FrameModule, nameOf, sizeOf } from '../lib/sdk.ts';
 
-type Dock = 'inspect' | 'changes' | 'export' | null;
+type Dock = 'inspect' | 'changes' | 'export' | 'agent' | null;
 export type ViewMode = 'single' | 'split' | 'grid';
 
 const kebab = (key: string): string => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
@@ -36,8 +47,13 @@ export function FrameView() {
   const [splitIndex, setSplitIndex] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('single');
   // The inspector starts open only where the canvas keeps room beside it; picking an element opens it anyway.
+  // An agent adding a file reloads the page, so the panel it talks through reopens.
   const [dock, setDock] = useState<Dock>(() =>
-    typeof window === 'undefined' || window.innerWidth >= 1200 ? 'inspect' : null,
+    agentAvailable && readStorage(AGENT_DOCK_KEY) === '1'
+      ? 'agent'
+      : typeof window === 'undefined' || window.innerWidth >= 1200
+        ? 'inspect'
+        : null,
   );
   const [playing, setPlaying] = useState(false);
   const [finding, setFinding] = useState(false);
@@ -56,6 +72,10 @@ export function FrameView() {
   const [revision, setRevision] = useState(0);
   const frameRef = useRef<HTMLDivElement>(null);
   const t = useT();
+  // The dock exists whenever the dev server answers for an agent; until one is
+  // connected it explains how to connect one.
+  const agentEnabled = useAgentStatus().enabled;
+  useAgentDockMemory(dock === 'agent');
 
   useEffect(() => {
     if (frameFile === null) return;
@@ -136,7 +156,8 @@ export function FrameView() {
       e.preventDefault();
       e.stopPropagation();
       select(el);
-      setDock('inspect');
+      // Picking while talking to the agent is pointing at something for it.
+      setDock((d) => (d === 'agent' ? d : 'inspect'));
       if (pickingComment) {
         setPickingComment(false);
         setCommentFocusTrigger((n) => n + 1);
@@ -297,6 +318,9 @@ export function FrameView() {
         setDock((d) => (d === 'changes' ? null : 'changes'));
       }
       if (e.key.toLowerCase() === 'e') setDock((d) => (d === 'export' ? null : 'export'));
+      if (e.key.toLowerCase() === 'a' && agentEnabled) {
+        setDock((d) => (d === 'agent' ? null : 'agent'));
+      }
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') step(1);
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') step(-1);
       if (e.key === 'Escape') {
@@ -310,6 +334,36 @@ export function FrameView() {
 
   const comments = useComments(import.meta.env.DEV ? frameFile : null);
   const changesState = useChanges(frameFile, import.meta.env.DEV);
+
+  const agentContext = useMemo<AgentTurnContext>(() => {
+    const loc = selected ? locOf(selected) : null;
+    return {
+      ...(frameFile ? { frameId: frameFile } : {}),
+      ...(mod?.meta?.title ? { frameTitle: mod.meta.title } : {}),
+      ...(frame
+        ? {
+            artboard: {
+              index,
+              total: frames.length,
+              name: nameOf(frame, index),
+              width: size.width,
+              height: size.height,
+            },
+          }
+        : {}),
+      pendingComments: comments.comments.length,
+      selection:
+        selected && loc
+          ? {
+              ...loc,
+              label: labelOf(selected),
+              tagName: selected.tagName.toLowerCase(),
+              text: (selected.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 120),
+            }
+          : null,
+    };
+  }, [frameFile, mod, frame, index, frames.length, size.width, size.height, comments, selected]);
+  const agentActivity = useAgentActivity(agentEnabled ? frameFile : null);
 
   const commentTarget = useMemo(() => {
     if (!selected) return null;
@@ -353,8 +407,17 @@ export function FrameView() {
         label: t('finder.toggleExport'),
         run: () => setDock((d) => (d === 'export' ? null : 'export')),
       },
+      ...(agentEnabled
+        ? [
+            {
+              key: 'dock-agent',
+              label: t('finder.toggleAgent'),
+              run: () => setDock((d) => (d === 'agent' ? null : 'agent')),
+            },
+          ]
+        : []),
     ],
-    [t],
+    [t, agentEnabled],
   );
 
   const hunkCount = changesState.changes?.hunks.length ?? 0;
@@ -575,6 +638,21 @@ export function FrameView() {
               <kbd>D</kbd>
             </button>
           ) : null}
+          {agentEnabled ? (
+            <button
+              type="button"
+              className="odf-btn"
+              aria-pressed={dock === 'agent'}
+              onClick={() => setDock((d) => (d === 'agent' ? null : 'agent'))}
+              title={`${t('agent.open')} (A)`}
+              aria-label={t('agent.open')}
+              data-agent-toggle
+            >
+              <i aria-hidden="true">✦</i>
+              <span className="odf-btn-label">{t('agent.open')}</span>
+              <kbd>A</kbd>
+            </button>
+          ) : null}
           <button
             type="button"
             className="odf-btn odf-btn-primary"
@@ -715,6 +793,10 @@ export function FrameView() {
             </FrameCanvas>
           ) : null}
 
+          {agentActivity && dock !== 'agent' ? (
+            <AgentPresence activity={agentActivity} onOpen={() => setDock('agent')} />
+          ) : null}
+
           {import.meta.env.DEV ? (
             <CommentDock
               comments={comments.comments}
@@ -731,7 +813,13 @@ export function FrameView() {
           ) : null}
         </main>
 
-        {dock === 'changes' ? (
+        {dock === 'agent' ? (
+          agentEnabled ? (
+            <aside className="odf-dock odf-dock-agent" data-agent-dock>
+              <AgentPanel context={agentContext} onClose={() => setDock(null)} />
+            </aside>
+          ) : null
+        ) : dock === 'changes' ? (
           <aside className="odf-dock">
             <ChangesPanel
               changes={changesState.changes}

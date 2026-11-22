@@ -6,6 +6,7 @@ import react from '@vitejs/plugin-react';
 import type { InlineConfig } from 'vite';
 import type { OpenDesignFrameConfig } from '../config.ts';
 import { makeContext } from '../ops/index.ts';
+import { agentPlugin } from './agent-plugin.ts';
 import { assetsPlugin } from './assets-plugin.ts';
 import { changesPlugin } from './changes-plugin.ts';
 import { commentsPlugin } from './comments-plugin.ts';
@@ -73,6 +74,8 @@ export type CreateViteConfigOptions = {
   userCwd: string;
   /** Mount the MCP endpoint at /mcp (requires `@open-design-frame/mcp`). */
   mcp?: boolean;
+  /** Serve the in-app agent panel's routes at /__agent (dev only). Default true. */
+  agent?: boolean;
 };
 
 export async function createViteConfig(opts: CreateViteConfigOptions): Promise<InlineConfig> {
@@ -111,6 +114,7 @@ export async function createViteConfig(opts: CreateViteConfigOptions): Promise<I
       foldersPlugin(ctx),
       framesPlugin(ctx),
       themesPlugin(ctx),
+      ...(opts.agent === false ? [] : [agentPlugin(ctx)]),
       ...(opts.mcp
         ? [
             mcpPlugin({

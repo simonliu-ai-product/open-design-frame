@@ -54,9 +54,12 @@ program
   .option('-p, --port <port>', 'port to listen on', (v) => Number.parseInt(v, 10))
   .option('--host [host]', 'expose on the network')
   .option('--mcp', 'serve an MCP endpoint at /mcp (requires @open-design-frame/mcp)')
-  .action(async (opts: { port?: number; host?: string | boolean; mcp?: boolean }) => {
-    await dev(opts);
-  });
+  .option('--no-agent', 'leave out the in-app agent panel')
+  .action(
+    async (opts: { port?: number; host?: string | boolean; mcp?: boolean; agent?: boolean }) => {
+      await dev(opts);
+    },
+  );
 
 program
   .command('build')

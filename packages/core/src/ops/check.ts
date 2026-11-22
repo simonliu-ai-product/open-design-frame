@@ -207,6 +207,8 @@ export type CheckOptions = {
    * past the artboard, images that do not load, unreadably small type.
    */
   render?: boolean;
+  /** A dev server already serving this workspace, to draw on instead of starting one. */
+  origin?: string;
 };
 
 export async function checkFrames(
@@ -222,7 +224,7 @@ export async function checkFrames(
     const report = await checkFrame(ctx, id);
     // A file that does not parse is already an error; drawing it says nothing more.
     if (render && !report.findings.some((f) => f.rule === 'syntax-error')) {
-      const drawn = await render.renderCheck(ctx, id);
+      const drawn = await render.renderCheck(ctx, id, opts.origin ? { origin: opts.origin } : {});
       if (drawn.error) {
         report.findings.push({
           rule: 'load-error',

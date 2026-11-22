@@ -52,6 +52,11 @@ function findPlaywright(userCwd: string): string | null {
   }
 }
 
+/** Whether this workspace can draw frames at all. */
+export function hasPlaywright(userCwd: string): boolean {
+  return findPlaywright(userCwd) !== null;
+}
+
 async function loadPlaywright(userCwd: string): Promise<Playwright> {
   const entry = findPlaywright(userCwd);
   if (!entry) throw new OpsError(424, PLAYWRIGHT_MISSING);
@@ -97,7 +102,9 @@ async function startSession(ctx: OpsContext, origin?: string): Promise<Session> 
       import('vite'),
       import('../vite/config.ts'),
     ]);
-    const config = await createViteConfig({ userCwd: ctx.userCwd });
+    // The agent belongs to the dev server people use; a second copy would save
+    // its own stale view of the sessions over theirs when this one closes.
+    const config = await createViteConfig({ userCwd: ctx.userCwd, agent: false });
     const server = await createServer({
       ...config,
       logLevel: 'silent',
