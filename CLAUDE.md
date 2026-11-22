@@ -159,6 +159,27 @@ unwrapped markup still renders, it just cannot be selected.
   move its file: the folder name is the id, and the id is in the URL, in the
   asset paths beside it and in whatever links to it. Renaming a frame writes
   `meta.title` for the same reason; duplicating and deleting do move folders.
+- **The agent panel drives the user's own agent, not ours.** `src/agent` is
+  ported from open-doc: a session store in `node_modules/.open-design-frame/`
+  (never tracked files), a runner that turns provider events into a
+  transcript, and providers resolved from the user's workspace at runtime —
+  `@openai/codex-sdk` is found like Playwright, typed locally, never a
+  dependency. Only Codex is offered: Claude Code may not run on a user's
+  claude.ai login inside another product, and Antigravity waits for official
+  third-party harness support; a new provider is one id in `agent/types.ts` and
+  one entry in `providers/index.ts`. `vite/agent-plugin.ts` serves `/__agent`
+  to this machine only and refuses other origins. The agent runs commands, so
+  that is the boundary, not the panel.
+- **The dev server checks what a turn wrote.** Codex's sandbox cannot start a
+  browser, so after a turn that used a tool the server runs `checkFrames` on
+  the frame files whose mtime is past the message — drawing them on this same
+  server when Playwright is present — and appends a `check` item. The private
+  render server is built with `agent: false`: a second store would save its
+  stale snapshot of the sessions over the live one when it closes.
+- **A host's agent wins.** When `window.openxHost` declares the `agent`
+  capability (`app/lib/host.ts`), the panel, its toggle and the shortcut are
+  gone — two agents in one window would edit the same files blind to each
+  other. With no host the panel shows normally.
 - **Assets have two scopes and nothing is copied between them.** A picture used
   by one frame lives in `frames/<id>/assets/`; one used by all of them lives in
   the project's `assets/`. A file in two places is two files to keep in step.

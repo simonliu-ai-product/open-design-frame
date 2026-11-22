@@ -78,6 +78,10 @@ Clients that start their own servers (Claude Code, Antigravity, Gemini CLI) run 
 
 The tools and the browser share one implementation, so `write_frame` takes the revision you last read and refuses a stale write with `409` rather than overwriting whoever got there first. See [packages/mcp](packages/mcp).
 
+### ✦ An agent beside the canvas
+
+Press <kbd>A</kbd> in `open-design-frame dev` and Codex opens in a dock next to the frame. It works in your workspace with your own Codex sign-in — the panel finds the `codex` CLI, adds `@openai/codex-sdk` to the workspace, and lists the models your account can use. Each message carries the file, the artboard on screen and the element you picked on the canvas, so "make this bolder" means the thing you are looking at; the canvas reloads as the agent writes, and picking keeps the dock on the conversation. Codex's sandbox cannot start a browser, so when a turn ends the dev server runs `open-design-frame check` on the files it changed — drawing them too when Playwright is installed — and puts what it finds in the transcript with a button that hands it back. Conversations are kept in `node_modules/.open-design-frame/`, never in your tracked files, and the routes answer only on this machine. `dev --no-agent` leaves the panel out, and an app hosting the viewer that brings its own agent hides it.
+
 ### 🗂️ A workspace, not a file list
 
 <img src=".github/assets/workspace.png" alt="Every frame file as a card, with folders, search, and the themes and assets beside them." width="100%">
@@ -102,7 +106,7 @@ Open http://localhost:5274. From there, drive it through your agent — or edit 
 | Command | What it does |
 | --- | --- |
 | `open-design-frame init [dir]` | Scaffold a workspace with a starter frame, `CLAUDE.md`, `AGENTS.md`, and agent skills |
-| `open-design-frame dev` | Canvas with hot reload (`--mcp` to mount the MCP endpoint, `--port`, `--host`) |
+| `open-design-frame dev` | Canvas with hot reload (`--mcp` to mount the MCP endpoint, `--no-agent` to leave out the agent panel, `--port`, `--host`) |
 | `open-design-frame build` | Static site into `dist/` (`--out-dir` to change it) |
 | `open-design-frame preview` | Serve the static site in `dist/` |
 | `open-design-frame templates` | List built-in frame templates (`--json`) |

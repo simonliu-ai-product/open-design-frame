@@ -78,6 +78,10 @@ pnpm add -D @open-design-frame/core
 
 這些工具和瀏覽器共用同一份實作，所以 `write_frame` 會帶著你上次讀到的 revision，遇到過期的寫入回 `409`，而不是把別人的修改蓋掉。詳見 [packages/mcp](packages/mcp)。
 
+### ✦ 畫布旁邊就有 agent
+
+在 `open-design-frame dev` 裡按 <kbd>A</kbd>，Codex 會在 frame 旁邊的面板打開。它在你的工作區裡、用你自己的 Codex 登入工作——面板會找到 `codex` CLI、把 `@openai/codex-sdk` 加進工作區，並列出你的帳號能用的模型。每則訊息都帶著目前的檔案、畫面上的 artboard，以及你在畫布上點選的元素，所以「把這個加粗」指的就是你正在看的東西；agent 一寫入畫布就重新載入，點選元素時面板也不會被切走。Codex 的沙箱開不了瀏覽器，所以每一輪結束後由 dev server 對它改過的檔案跑 `open-design-frame check`——有裝 Playwright 時也會實際畫出來——把結果放進對話裡，附一顆交回給 agent 修正的按鈕。對話存在 `node_modules/.open-design-frame/`，不會進到你追蹤的檔案；這些路由只回應本機。`dev --no-agent` 可以不掛面板；嵌入 viewer 的宿主 app 若自帶 agent，面板會自動隱藏。
+
 ### 🗂️ 一個工作區，不是一份檔案清單
 
 <img src=".github/assets/workspace.png" alt="每個 frame 檔案是一張卡片，旁邊是資料夾、搜尋，以及主題與素材。" width="100%">
