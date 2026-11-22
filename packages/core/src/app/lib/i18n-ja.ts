@@ -92,7 +92,7 @@ export const JA: Messages = {
   'comments.count': '{n} 件の{unit}',
   'comments.singular': 'コメント',
   'comments.plural': 'コメント',
-  'comments.newComment': '新規コメントピン',
+  'comments.newComment': '新規コメント',
   'comments.pickingHint': 'コメントを付ける要素をキャンバス上でクリック（Escでキャンセル）',
   'comments.empty': 'コメントはまだありません。要素を選択するか + ボタンでピン留めできます。',
   'comments.add': 'コメントを追加',

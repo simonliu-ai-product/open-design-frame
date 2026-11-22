@@ -35,7 +35,10 @@ export function FrameView() {
   const [index, setIndex] = useState(0);
   const [splitIndex, setSplitIndex] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('single');
-  const [dock, setDock] = useState<Dock>('inspect');
+  // The inspector starts open only where the canvas keeps room beside it; picking an element opens it anyway.
+  const [dock, setDock] = useState<Dock>(() =>
+    typeof window === 'undefined' || window.innerWidth >= 1200 ? 'inspect' : null,
+  );
   const [playing, setPlaying] = useState(false);
   const [finding, setFinding] = useState(false);
   const [pickingComment, setPickingComment] = useState(false);
@@ -377,32 +380,137 @@ export function FrameView() {
                 type="button"
                 className="odf-seg"
                 aria-current={viewMode === 'single'}
+                title={t('view.single')}
                 onClick={() => setViewMode('single')}
               >
-                {t('view.single')}
+                <span className="odf-seg-icon">
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="14"
+                    height="14"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <rect
+                      x="3"
+                      y="2.5"
+                      width="10"
+                      height="11"
+                      rx="1.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                  </svg>
+                </span>
+                <span className="odf-seg-label">{t('view.single')}</span>
               </button>
               <button
                 type="button"
                 className="odf-seg"
                 aria-current={viewMode === 'split'}
+                title={t('view.split')}
                 onClick={() => setViewMode('split')}
               >
-                {t('view.split')}
+                <span className="odf-seg-icon">
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="14"
+                    height="14"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <rect
+                      x="1.5"
+                      y="3"
+                      width="5.5"
+                      height="10"
+                      rx="1.2"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                    <rect
+                      x="9"
+                      y="3"
+                      width="5.5"
+                      height="10"
+                      rx="1.2"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                  </svg>
+                </span>
+                <span className="odf-seg-label">{t('view.split')}</span>
               </button>
               <button
                 type="button"
                 className="odf-seg"
                 aria-current={viewMode === 'grid'}
+                title={t('view.grid')}
                 onClick={() => setViewMode('grid')}
               >
-                {t('view.grid')}
+                <span className="odf-seg-icon">
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="14"
+                    height="14"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <rect
+                      x="2"
+                      y="2"
+                      width="5"
+                      height="5"
+                      rx="1"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                    <rect
+                      x="9"
+                      y="2"
+                      width="5"
+                      height="5"
+                      rx="1"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                    <rect
+                      x="2"
+                      y="9"
+                      width="5"
+                      height="5"
+                      rx="1"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                    <rect
+                      x="9"
+                      y="9"
+                      width="5"
+                      height="5"
+                      rx="1"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                  </svg>
+                </span>
+                <span className="odf-seg-label">{t('view.grid')}</span>
               </button>
             </span>
           ) : null}
         </div>
 
         <div className="odf-topbar-center">
-          <span className="odf-title">{mod?.meta?.title ?? frameFile}</span>
+          <span className="odf-title" title={mod?.meta?.title ?? frameFile ?? undefined}>
+            {mod?.meta?.title ?? frameFile}
+          </span>
         </div>
 
         <div className="odf-topbar-right">
@@ -433,16 +541,24 @@ export function FrameView() {
             className="odf-btn"
             onClick={() => setPlaying(true)}
             disabled={frames.length === 0}
+            title={`${t('view.play')} (P)`}
+            aria-label={t('view.play')}
           >
-            <i aria-hidden="true">▶</i> {t('view.play')} <kbd>P</kbd>
+            <i aria-hidden="true">▶</i>
+            <span className="odf-btn-label">{t('view.play')}</span>
+            <kbd>P</kbd>
           </button>
           <button
             type="button"
             className="odf-btn"
             aria-pressed={dock === 'inspect'}
             onClick={() => setDock((d) => (d === 'inspect' ? null : 'inspect'))}
+            title={`${t('view.inspect')} (I)`}
+            aria-label={t('view.inspect')}
           >
-            <i aria-hidden="true">◎</i> {t('view.inspect')} <kbd>I</kbd>
+            <i aria-hidden="true">◎</i>
+            <span className="odf-btn-label">{t('view.inspect')}</span>
+            <kbd>I</kbd>
           </button>
           {import.meta.env.DEV ? (
             <button
@@ -450,8 +566,11 @@ export function FrameView() {
               className="odf-btn"
               aria-pressed={dock === 'changes'}
               onClick={() => setDock((d) => (d === 'changes' ? null : 'changes'))}
+              title={`${t('view.changes')} (D)`}
+              aria-label={t('view.changes')}
             >
-              <i aria-hidden="true">Δ</i> {t('view.changes')}
+              <i aria-hidden="true">Δ</i>
+              <span className="odf-btn-label">{t('view.changes')}</span>
               {hunkCount > 0 ? <span className="odf-btn-badge">{hunkCount}</span> : null}
               <kbd>D</kbd>
             </button>
@@ -461,8 +580,12 @@ export function FrameView() {
             className="odf-btn odf-btn-primary"
             aria-pressed={dock === 'export'}
             onClick={() => setDock((d) => (d === 'export' ? null : 'export'))}
+            title={`${t('view.export')} (E)`}
+            aria-label={t('view.export')}
           >
-            <i aria-hidden="true">↓</i> {t('view.export')} <kbd>E</kbd>
+            <i aria-hidden="true">↓</i>
+            <span className="odf-btn-label">{t('view.export')}</span>
+            <kbd>E</kbd>
           </button>
         </div>
       </header>

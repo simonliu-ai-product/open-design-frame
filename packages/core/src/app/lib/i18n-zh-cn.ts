@@ -91,7 +91,7 @@ export const ZH_CN: Messages = {
   'comments.count': '{n} 条{unit}',
   'comments.singular': '批注',
   'comments.plural': '批注',
-  'comments.newComment': '添加批注图钉',
+  'comments.newComment': '添加批注',
   'comments.pickingHint': '请点击画布上的目标元素以附加批注（按 Esc 取消）',
   'comments.empty': '此画框暂无批注。选中元素或点击 + 即可在画布上添加批注。',
   'comments.add': '添加批注',

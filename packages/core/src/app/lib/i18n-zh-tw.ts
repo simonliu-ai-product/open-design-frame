@@ -91,7 +91,7 @@ export const ZH_TW: Messages = {
   'comments.count': '{n} 則{unit}',
   'comments.singular': '註解',
   'comments.plural': '註解',
-  'comments.newComment': '新增註解釘選',
+  'comments.newComment': '新增註解',
   'comments.pickingHint': '請點擊畫布上的目標元素以附加註解（按 Esc 取消）',
   'comments.empty': '此畫框尚無註解。選取元素或點擊 + 即可在畫布上釘選註解。',
   'comments.add': '新增註解',

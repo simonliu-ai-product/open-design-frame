@@ -91,7 +91,7 @@ export const KO: Messages = {
   'comments.count': '{unit} {n}개',
   'comments.singular': '코멘트',
   'comments.plural': '코멘트',
-  'comments.newComment': '새 코멘트 핀',
+  'comments.newComment': '새 코멘트',
   'comments.pickingHint': '캔버스에서 코멘트를 추가할 요소를 클릭하세요 (Esc로 취소)',
   'comments.empty': '아직 코멘트가 없습니다. 요소를 선택하거나 + 버튼으로 핀을 꽂으세요.',
   'comments.add': '코멘트 추가',
