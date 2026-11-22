@@ -23,6 +23,7 @@ export function systemPromptAppend(askInstruction: string, opts: PromptOptions):
     opts.canOpenBrowser === false
       ? 'Your sandbox cannot start a browser, so do not run `open-design-frame check --render` or `render`. When your turn ends the dev server checks and draws the frame files you changed and shows the user what it finds.'
       : 'After editing a frame file, run `open-design-frame check <id> --render` and fix what it reports.',
+    "Reply in the language of the person's latest message; in Chinese, keep their script and regional wording (Traditional for Traditional, Simplified for Simplified).",
     'Keep replies short and concrete: the panel is narrow. Prefer doing the work over describing it, and finish with a one-line summary of what changed.',
     askInstruction,
   ].join(' ');
